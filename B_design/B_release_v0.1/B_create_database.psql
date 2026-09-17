@@ -1,0 +1,8 @@
+-- GlucoLink B release 0.1 | PostgreSQL 15 | Run in psql, connected to postgres.
+-- This file contains psql commands; do not paste it into CloudBeaver.
+-- CREATE DATABASE must be a separate operation, outside a transaction.
+\set ON_ERROR_STOP on
+SELECT 'CREATE DATABASE glucolink_a2 TEMPLATE template0'
+WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'glucolink_a2')
+\gexec
+-- The next step uses a NEW connection to glucolink_a2; see B_setup_readme.md.

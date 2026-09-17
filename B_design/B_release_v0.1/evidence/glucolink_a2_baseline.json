@@ -1,0 +1,57 @@
+{
+  "captured_at": "2026-09-16T07:38:48.532654+00:00",
+  "release_id": "B_RELEASE_0.1",
+  "database": "glucolink_a2",
+  "server_version": "15.18 (Debian 15.18-1.pgdg13+1)",
+  "session_timezone": "Etc/UTC",
+  "schemas": [
+    {
+      "name": "audit",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "cleansed",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "curated",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "public",
+      "owner": "pg_database_owner",
+      "acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner}"
+    },
+    {
+      "name": "raw",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "reporting",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "src_gp",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "src_lab",
+      "owner": "student",
+      "acl": null
+    },
+    {
+      "name": "src_pharm",
+      "owner": "student",
+      "acl": null
+    }
+  ],
+  "relations": [],
+  "columns": [],
+  "constraints": []
+}

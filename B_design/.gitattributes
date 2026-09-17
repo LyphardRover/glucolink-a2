@@ -1,0 +1,7 @@
+# Preserve released file bytes so SHA-256 checksums match after checkout.
+B_release_v0.1/** -text
+# Original console evidence retains its table alignment and Windows line endings.
+B_release_v0.1/** whitespace=cr-at-eol
+B_release_v0.1/evidence/*.txt -whitespace
+B_release_v0.1/*.pdf binary
+B_release_v0.1/*.png binary

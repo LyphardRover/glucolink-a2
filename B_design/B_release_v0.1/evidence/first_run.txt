@@ -1,0 +1,68 @@
+CREATE DATABASE
+BEGIN
+DO
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE SCHEMA
+DO
+COMMIT
+ database_name | connected_role |         server_version          | session_timezone 
+---------------+----------------+---------------------------------+------------------
+ glucolink_a2  | student        | 15.18 (Debian 15.18-1.pgdg13+1) | Etc/UTC
+(1 row)
+
+ database_name 
+---------------
+ glucolink
+ glucolink_a2
+ lab
+ postgres
+(4 rows)
+
+ schema_name |       owner       
+-------------+-------------------
+ audit       | student
+ cleansed    | student
+ curated     | student
+ public      | pg_database_owner
+ raw         | student
+ reporting   | student
+ src_gp      | student
+ src_lab     | student
+ src_pharm   | student
+(9 rows)
+
+   check_name    | status |    actual    
+-----------------+--------+--------------
+ target_database | PASS   | glucolink_a2
+(1 row)
+
+ schema_name | status |  owner  
+-------------+--------+---------
+ audit       | PASS   | student
+ cleansed    | PASS   | student
+ curated     | PASS   | student
+ raw         | PASS   | student
+ reporting   | PASS   | student
+ src_gp      | PASS   | student
+ src_lab     | PASS   | student
+ src_pharm   | PASS   | student
+(8 rows)
+
+ user_tables_and_views 
+-----------------------
+                     0
+(1 row)
+
+  release_id   | database_name |                        project_schemas                        
+---------------+---------------+---------------------------------------------------------------
+ B_RELEASE_0.1 | glucolink_a2  | audit,cleansed,curated,raw,reporting,src_gp,src_lab,src_pharm
+(1 row)
+
+B setup steps completed. Check every validation row, then record the result.
+

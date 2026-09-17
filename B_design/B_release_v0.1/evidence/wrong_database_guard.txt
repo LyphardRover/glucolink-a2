@@ -1,0 +1,4 @@
+BEGIN
+
+ERROR:  Wrong database: connect to glucolink_a2 before B_setup.sql
+CONTEXT:  PL/pgSQL function inline_code_block line 4 at RAISE

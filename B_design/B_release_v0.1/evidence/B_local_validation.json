@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-09-16T07:38:49.735114+00:00",
+  "checks": [
+    {
+      "check": "first_run",
+      "status": "PASS",
+      "detail": "B runner finished on B local machine"
+    },
+    {
+      "check": "second_run",
+      "status": "PASS",
+      "detail": "B runner finished on B local machine"
+    },
+    {
+      "check": "repeat_setup_same_structure",
+      "status": "PASS",
+      "detail": "Metadata equal after two local runs; timestamps excluded"
+    },
+    {
+      "check": "wrong_database_guard",
+      "status": "PASS",
+      "detail": "lab rejected setup; lab metadata unchanged"
+    },
+    {
+      "check": "previous_glucolink_structure",
+      "status": "PASS",
+      "detail": "Previous database metadata unchanged"
+    },
+    {
+      "check": "course_practice_row_counts",
+      "status": "PASS",
+      "detail": "inventory|4\nshops|3"
+    },
+    {
+      "check": "second_member_reproduction",
+      "status": "NOT_RUN",
+      "detail": "Requires C or D on their own machine"
+    },
+    {
+      "check": "D_E_design_review",
+      "status": "PENDING",
+      "detail": "Logical model is a B proposal, not approved business DDL"
+    },
+    {
+      "check": "business_pipeline",
+      "status": "NOT_RUN",
+      "detail": "C/D/E business tables and F integration are outside B setup"
+    }
+  ]
+}
