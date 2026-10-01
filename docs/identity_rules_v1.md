@@ -1,57 +1,48 @@
+# Identity and Cleansing Rules v1
+
+**Owner:** Yutong Geng (Package D)
+**Date:** 1 October 2026
+**Status:** v1 — revised to match A2 Build Plan v2, sections 5.3 and 6 (supersedes the first draft, which used a different tier scheme before the Build Plan v2 rules were confirmed)
+
 ## 1. Purpose
 
-Defines how records from the three source systems (GP, PATH/pathology, PHARM/pharmacy) are linked to a single `trusted_patient_id`. Rules are deterministic and applied from strongest to weakest evidence. Any conflict or ambiguity produces `unresolved` — never a forced merge.
+Describes how patient records from the three source systems (GP, LAB/pathology, PHARM/pharmacy) are standardised into `cleansed.patient_record`, how a single golden patient (`cleansed.patient_master`) is built from them, and how each source record is linked to that golden patient in `cleansed.patient_source_link`. Matching is deterministic. A record is never merged on doubt — anything uncertain is routed to REVIEW, not forced into a match.
 
-## 2. Inputs (post-standardisation, output of 04_cleansed_standardise.sql)
+## 2. How each field is standardised (04_cleansed_standardise.sql)
 
-Confirmed against C's `01_src_tables.sql` (30 Sept 2026). Source columns differ per system, so standardisation work differs too:
+All three sources are combined into one table, `cleansed.patient_record`, one row per source record, columns: `source_system` (GP/LAB/PHARM), `source_patient_id`, `given_name`, `family_name`, `dob`, `sex`, `medicare10`, `postcode`.
 
-- **GP** (`src_gp.gp_patient`: `first_name`, `last_name`, `dob`, `sex`, `postcode`, `medicare_number`) → produces `norm_first`, `norm_last`, `norm_dob`, `norm_sex`, `norm_postcode`, `norm_medicare`. No `ihi` field exists in the source table — removed from this version; can be added back if the team decides to add it upstream.
-- **PATH** (`src_lab.lab_patient`: `patient_name` [combined, e.g. "SURNAME, First M"], `dob` [text, DD/MM/YYYY], `sex`, `medicare_number`) → `patient_name` must be **split into `norm_first`/`norm_last` first**, before any other standardisation. No postcode field exists in the source table, so `norm_postcode` is **not available for PATH** — any rule referencing PATH postcode is dropped (see Tier 5 below).
-- **PHARM** (`src_pharm.pharmacy_patient`: `given_name`, `surname`, `date_of_birth` [text, DD-Mon-YY], `medicare_number`) → produces `norm_first`, `norm_last`, `norm_dob`, `norm_medicare`. No sex or postcode fields exist in the source table.
+- **given_name / family_name**: upper-cased and trimmed. GP and PHARM already store these split; LAB stores a single combined `patient_name` field (e.g. `"SMITH, Thomas J"`), so the family name is taken as the text before the comma and the given name as the first word after it. PHARM sometimes stores only an initial (e.g. `"T"` for Thomas) — this is kept as-is, not expanded, which is exactly why matching cannot rely on name alone.
+- **dob**: GP already stores a real DATE. LAB stores text in `DD/MM/YYYY`. PHARM stores text in `DD-Mon-YY`, where the two-digit year needs the agreed 100-year rule applied manually (PostgreSQL's own century pivot reads `62` as `2062`, which is wrong): `yy >= 40 → 19yy`, else `→ 20yy` (so `14-May-62` → `1962-05-14`).
+- **medicare10**: digits only, stripped of spaces and other characters. LAB's Medicare number carries an IRN suffix after a slash (e.g. `2123456701/1`) — only the part before the slash is the real number; the suffix is dropped, not appended, so the result is still exactly 10 digits. Missing Medicare is stored as SQL `NULL`, never as text or a placeholder.
+- **sex / postcode**: carried through where the source has them (GP has both; LAB has sex only; PHARM has neither) — left `NULL` where the source does not record that field, rather than guessed or omitted as a column.
 
-## 3. Validity checks (a field only counts as evidence if it passes these)
+## 3. Why masters come from GP records only
 
-- `norm_medicare`: exactly 10 digits after stripping non-digits. Reject obvious placeholders (e.g. `0000000000`, repeated digits). A Medicare number linked to 3+ clearly different (name, DOB) combinations is flagged as suspect and excluded from auto-matching in that run.
-- `norm_dob`: must parse to a valid calendar date under that source's known format. Implied ages outside 0–110 are rejected as invalid, not used to match.
-- `norm_first` / `norm_last`: an empty string is treated as missing, never as a match.
+`cleansed.patient_master` (the golden patient index) is built **only from GP records**, because GP registration is what constitutes formal enrolment in GlucoLink — a person who only appears in LAB or PHARM has not necessarily enrolled, so they cannot be treated as the authoritative identity. LAB and PHARM records are only ever linked *to* an existing GP-derived master; they never create one.
 
-## 4. Match tiers (strongest → weakest)
+## 4. Matching rules (R1 / R2 / REVIEW / UNMATCHED)
 
-| Tier | Rule | Action | `match_rule_id` |
-|---|---|---|---|
-| 1 | `norm_medicare` exact match **and** `norm_dob` exact match | Auto-match | `TIER1_MEDICARE_DOB_V1` |
-| 2 | *(reserved — no `ihi` field exists in the current source tables; add back if the team introduces one)* | — | — |
-| 3 | `norm_first` + `norm_last` + `norm_dob` all exact match, **and the combination is unique** on each side | Auto-match | `TIER3_NAME_DOB_V1` |
-| 4 | Same as Tier 3, but the (name, DOB) key maps to **more than one** candidate on either side | **Unresolved** — ambiguous, do not merge | `TIER4_AMBIGUOUS` |
-| 5 | Partial/fuzzy name or DOB match, with postcode agreement as a supporting signal (**GP↔PHARM only** — PATH has no postcode field) | Tie-breaker only this round, never sole basis for auto-accept | `TIER5_SUPPORTING_ONLY` |
+Applied to each non-GP record (LAB or PHARM) against the set of GP-derived masters, strongest evidence first:
 
-## 5. Conflict handling
+- **R1**: the record's `medicare10` equals exactly one master's `medicare10` → **LINKED** to that master.
+- **R2** (only evaluated if R1 does not apply): the record has the same `dob`, the same `family_name`, and the same first letter of `given_name` as exactly one master, **and** the two Medicare numbers do not conflict (one of them is `NULL`, or they are equal) → **LINKED** to that master.
+- If either rule matches **more than one** candidate master → **REVIEW** (ambiguous; a human must resolve it).
+- If **no** candidate matches under R1 or R2 → **UNMATCHED**.
+- **Never merge on doubt.** A record is only LINKED when exactly one candidate satisfies R1 or R2; anything else stays REVIEW or UNMATCHED rather than being forced.
 
-If a pair satisfies a tier's key fields but another available field actively disagrees (e.g. same name + DOB but opposite `norm_sex` on GP↔PATH, or postcodes differing with no plausible relocation on GP↔PHARM), do **not** auto-match. Route to `unresolved` with a `conflict_reason` (e.g. `sex_mismatch`, `postcode_conflict`). Note: `norm_sex` is only available on GP and PATH (not PHARM), and `norm_postcode` is only available on GP and PHARM (not PATH), so which conflict checks apply depends on which pair of systems is being compared.
+Each row in `cleansed.patient_source_link` records: `(source_system, source_patient_id)` as its key, the `patient_id` it was linked to (`NULL` unless LINKED), `match_status` (LINKED / REVIEW / UNMATCHED), and `match_rule` (which rule produced the result, or the reason for REVIEW/UNMATCHED).
 
-## 6. What must NOT be used as matching evidence
+## 5. What must not be used as matching evidence
 
-- `identity_truth.csv` — evaluation-only. Read **after** matching is finalised, never as a matching input.
-- Row order / insertion order.
-- `referring_provider_id` (GP↔lab) and `prescriber_id` (GP↔pharmacy) — these hold a **clinician's** GP ID, not the patient's. Using them would be a hidden shortcut that doesn't reflect real-world identity resolution.
-- Any pre-assigned cross-system ID from upstream generation or testing.
+- `audit.identity_truth` — the evaluation answer key. It is never read by the matching script itself, only afterwards, to score the result.
+- Row order or insertion order.
+- Any clinician-side ID (e.g. a referring GP ID attached to a lab or pharmacy record) — these identify a clinician, not the patient, and using them would be a shortcut that does not reflect real-world identity resolution.
 
-## 7. Output states
+## 6. Evaluation (post-matching only)
 
-- **`matched`** — accepted link; tier and rule ID recorded.
-- **`unresolved`** — ambiguous or conflicting; attempted tier and conflict reason recorded; no `trusted_patient_id` cross-link asserted.
-- **`single_system`** — no candidate found in any other source at all. This is not a matching failure — the person simply has no record there.
+Once matching is complete, the accepted LINKED rows are scored against `audit.identity_truth` (never read beforehand). The key figures are precision (of the accepted links, how many are correct) and recall (of the true matches, how many were found) — reported separately, since a high-coverage result is not automatically an accurate one.
 
-## 8. Evaluation (post-matching only)
+## 7. Versioning
 
-Once matching is complete, accepted links are scored against separately-held ground truth:
-- **Recall** — % of true matches found
-- **Precision** — % of accepted matches that are correct
-- **False-merge rate** — % of accepted matches that are wrong
-
-**Coverage** (% of records that received any decision) is reported separately from **accuracy** — the two are not interchangeable.
-
-## 9. Versioning
-
-Every row in `PATIENT_SOURCE_LINK` carries `match_rule_id` (per the tier table above) and `run_id` for traceability. Rule changes require a new version number, never a silent edit.
+Rule changes are not silent edits: a change to this document or to the R1/R2 logic gets a new version number, and the team (particularly Minha for testing and Xiaolong for the expected-results sheet) is told, since the expected results in Appendix A/C depend on these exact rules.
