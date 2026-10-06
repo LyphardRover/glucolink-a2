@@ -3,7 +3,8 @@
 -- Purpose:       Rebuild the 11 source tables for the GlucoLink A2 prototype.
 -- Reads:         Existing source definitions (reset); system catalogues (checks).
 -- Writes:        The 11 named tables in src_gp, src_lab and src_pharm below.
--- Design link:   A2 Build Plan v2, sections 2 and 5.1 (three source systems).
+-- Design link:   Build Plan v2 sections 2/5.1; Task Cards v3 C-1.
+-- Updated:       2026-10-06; lab_patient.sex is CHAR(1), as required by C-1.
 -- Run after:     00_setup.sql, using the intended GlucoLink database connection.
 -- Re-runnable:   Yes; resets the named source tables before recreating them.
 -- Data loading:  Run 02_src_data.sql, then 02b_src_lab_messages.sql after this.
@@ -99,7 +100,7 @@ CREATE TABLE src_lab.lab_patient (
     lab_patient_id TEXT PRIMARY KEY,
     patient_name TEXT,
     dob TEXT,
-    sex TEXT,
+    sex CHAR(1),
     medicare_number TEXT
 );
 COMMENT ON TABLE src_lab.lab_patient
@@ -227,3 +228,9 @@ JOIN pg_namespace AS n ON n.oid = c.relnamespace
 WHERE n.nspname IN ('src_gp', 'src_lab', 'src_pharm')
   AND c.relkind IN ('r', 'p')
 ORDER BY n.nspname, c.relname;
+-- Check 5 (v3 C-1): character, maximum length 1.
+SELECT data_type, character_maximum_length
+FROM information_schema.columns
+WHERE table_schema = 'src_lab' AND table_name = 'lab_patient'
+  AND column_name = 'sex';
+
