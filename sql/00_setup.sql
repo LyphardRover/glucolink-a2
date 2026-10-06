@@ -2,7 +2,7 @@
 -- Package/owner: B - Zhihao Zhang
 -- Purpose: Shared namespaces, run log and v3 D1 rule parameters.
 -- Reads: pg_catalog. Writes: eight schema comments and two shared tables.
--- Design link: architecture_v1; governance and reporting configuration.
+-- Design link: architecture_v2; governance and reporting configuration.
 -- Run after: provision a database and select its object-owner role.
 -- Re-runnable: yes; refresh parameters transactionally, preserve all run history.
 -- Parameter source: task card v3 D1; nine final named values.
