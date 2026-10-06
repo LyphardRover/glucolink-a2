@@ -1,33 +1,31 @@
 -- File:          06_curated_dimensions.sql
 -- Package/owner: E - Shuo Ding
--- Purpose:       Rebuild and populate the six dimensions due on 1 October.
+-- Purpose:       Rebuild and populate six reference dimensions (Task Cards v3 E-1).
 -- Reads:         src_gp.clinic, src_lab.laboratory,
 --                src_pharm.pharmacy, src_pharm.medication.
 -- Writes:        curated.dim_date, dim_clinic, dim_lab, dim_pharmacy,
 --                dim_medication and dim_test.
 -- Design link:   Build Plan v2 section 5.4; E star_schema_v1.
--- Run after:     00_setup.sql, 01_src_tables.sql and C's reference-data load.
+-- Run after:     00_setup.sql, 01_src_tables.sql, 02_src_data.sql.
+-- Next release:  After 03_raw_extract.sql and 05_identity_resolution.sql,
+--                switch reference reads to raw.* and add dim_patient (E-2).
 -- Re-runnable:   Yes. Rebuild only these six tables inside one transaction.
--- Release:       E2 Thursday first version; dim_patient is due on 7 October.
+-- Release:       Task Cards v3 E-1; dim_patient / RAW switch due 8 October 21:00.
 -- Assistance:    Prepared with AI assistance; reviewed and tested separately.
 --
 -- Run the COMPLETE script in one SQL Editor session. It reads but never writes
 -- C's tables. On an error, stop and run ROLLBACK in the same session.
--- RESTRICT deliberately stops a rebuild when downstream objects depend on a
--- dimension. It prevents an accidental removal of teammates' views or FKs.
--- Coordinate any later rebuild once patient/fact tables or views are added.
+-- After re-running 06, re-run 07 and 08.
+-- CASCADE removes dependent views and foreign-key constraints. Existing fact
+-- rows are not refreshed by this script. Coordinate the rebuild in Teams,
+-- then rebuild facts and views in order before using their results.
 
 BEGIN;
 
--- Check the database, schema, reference tables and expected reference counts
--- before any dimension is dropped. A renamed test database needs this allowlist
--- updated explicitly after its name has been agreed with B.
+-- Check the schema, reference tables and expected reference counts before
+-- any dimension is dropped. No database-name restriction: supports test builds.
 DO $$
 BEGIN
-    IF current_database() NOT IN ('glucolink_a2', 'glucolink_a2_test') THEN
-        RAISE EXCEPTION 'Use glucolink_a2 or the agreed glucolink_a2_test database.';
-    END IF;
-
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.schemata
         WHERE schema_name = 'curated'
@@ -52,7 +50,7 @@ END
 $$;
 
 -- Reset only E's six first-version dimensions. No schemas are removed.
--- RESTRICT is a guard: dependencies must be handled deliberately, not cascaded.
+-- Remove dependent views / FKs as required by v3; follow with scripts 07 and 08.
 DROP TABLE IF EXISTS
     curated.dim_test,
     curated.dim_medication,
@@ -60,7 +58,7 @@ DROP TABLE IF EXISTS
     curated.dim_lab,
     curated.dim_clinic,
     curated.dim_date
-RESTRICT;
+CASCADE;
 
 -- Date dimension: one row per day; YYYYMMDD is the primary key.
 CREATE TABLE curated.dim_date (
