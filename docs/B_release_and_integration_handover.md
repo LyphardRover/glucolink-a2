@@ -46,7 +46,7 @@ Do not install postgres_fdw merely to produce a screenshot in the shared databas
 4. Coordinate a 5–10 minute affected-write pause in the team's explicitly agreed timezone. Check active transactions; never terminate teammate sessions to obtain a lock.
 5. Take a new private pg_dump, record timestamp and checksum, and verify a restore in an isolated database. Also preserve the two target tables' definitions, owners, grants and content. Do not upload credentials or backups to GitHub.
 6. Run the exact reviewed file with stop-on-error. The script handles one transaction, 5s lock timeout and 60s statement timeout, paired TRUNCATE without CASCADE, inserts and pre-commit assertions. Never rerun C's 01/02 on the shared database on B's behalf.
-7. Independently recheck all 36 messages and 34 deliveries against the fixture, not just counts. Only MSG0010 and MSG0032 lack delivery. Preserve MSG0032/OBS0031 duplicate, OBS0022 empty unit and OBS0025 future date. Check JSON IDs/LOINC/unit/time strings and all references.
+7. Independently recheck all 36 messages and 34 deliveries against the fixture, not just counts. Only MSG-0010 and MSG-0032 lack delivery. Preserve MSG-0032/OBS-0031 duplicate, OBS-0022 empty unit and OBS-0025 future date. Check JSON IDs/LOINC/unit/time strings and all references.
 8. Hand off to C to rerun RAW 03, D 04/05 and its reporting work, E 06/07 and its reporting work, then F tests/dashboard. Old downstream results are stale until their owners refresh them. Do not perform those shared operations without coordination.
 
 ### Scoped recovery
@@ -55,7 +55,7 @@ Before commit, any check/error/lock timeout rolls back. After commit, pause affe
 
 ## B4 dashboard decision and prepared path
 
-Metabase is a candidate, not a deployed or course-approved service. Four final reporting views are not yet present. B provides environment/connectivity; F owns dashboard contents.
+Metabase is a candidate, not a deployed service. Tutor-refusal status must be checked under F-3. Four final reporting views are not yet present. B provides environment/connectivity; F owns dashboard contents.
 
 - Recheck sustained memory/CPU, disk, existing proxy and Docker networks.
 - Use an independently version-pinned official Metabase image and a separate persistent PostgreSQL application database; do not use embedded H2 for the shared service.
@@ -64,7 +64,7 @@ Metabase is a candidate, not a deployed or course-approved service. Four final r
 - Confirm actual view owners before deciding how grants survive 08. A rerunnable exact-view grant step after 08 avoids broad default SELECT on every future reporting object. Validate access after owner-run 08 rebuild.
 - Use a separate HTTPS hostname and existing proxy only after configuration validation. Database port stays private. Capture old proxy configuration and roll back only the new route/service if needed.
 - New persistent credentials/security access require the user's confirmation at the actual access step. Never put credentials in GitHub or channel posts. User completes new-password entry when required.
-- A confirms the course permits the dashboard route; F verifies four queries, read-only restrictions and persistence after restart. By Oct 8 21:00 in the agreed team timezone, choose Excel if these checks are not satisfied. No emergency VM upgrade or public database port.
+- F-3 decision: by Thursday evening the tutor must not have refused external tooling, and B must provide a working Metabase URL plus read-only login. A can confirm the current tutor-refusal status; this does not invent a requirement for affirmative approval. F verifies four queries, read-only restrictions and persistence after restart. By Oct 8 21:00 in the agreed team timezone, choose Excel if the required conditions are not met. No emergency VM upgrade or public database port.
 
 ### Excel fallback — ready-to-use procedure
 
