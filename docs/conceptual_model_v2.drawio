@@ -1,0 +1,167 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="GlucoLink A2 | Conceptual model v1" id="0-V-ZLAkslr5X6N0j1W6">
+    <mxGraphModel dx="1013" dy="552" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-1" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=34;fontStyle=1;fontColor=#20334c;" value="GlucoLink A2 | Conceptual model v2" vertex="1">
+          <mxGeometry height="49" width="1685" x="45" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-2" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=19;fontStyle=0;fontColor=#20334c;" value="Task cards v3 | 10 conceptual entities | B: Zhihao Zhang | 6 Oct 2026 | Draft for C/D/E review" vertex="1">
+          <mxGeometry height="34" width="1685" x="45" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-3" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=21;fontStyle=1;fontColor=#20334c;" value="IDENTITY | A source record links to zero or one formal patient; uncertain records remain unlinked." vertex="1">
+          <mxGeometry height="36" width="1685" x="45" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-4" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Patient&#xa;Formal GlucoLink patient" vertex="1">
+          <mxGeometry height="90" width="280" x="90" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-5" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Source patient record&#xa;GP / LAB / pharmacy record" vertex="1">
+          <mxGeometry height="90" width="410" x="720" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-6" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToOne;endArrow=ERoneToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="370" y="225" as="sourcePoint" />
+            <mxPoint x="720" y="225" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-7" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=18;fontStyle=0;fontColor=#20334c;" value="resolved identity" vertex="1">
+          <mxGeometry height="33" width="1310" x="420" y="182" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-8" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=20;fontStyle=1;fontColor=#20334c;" value="CARE EVENTS | Repeated source-record boxes below are roles of the same entity, not new master entities." vertex="1">
+          <mxGeometry height="35" width="1685" x="45" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-9" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Clinic&#xa;Registers GP patients" vertex="1">
+          <mxGeometry height="90" width="265" x="70" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-10" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Source patient record&#xa;GP registration" vertex="1">
+          <mxGeometry height="90" width="355" x="665" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-11" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="335" y="420" as="sourcePoint" />
+            <mxPoint x="665" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-12" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="GP encounter&#xa;One visit at a clinic" vertex="1">
+          <mxGeometry height="90" width="355" x="665" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-13" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="840" y="465" as="sourcePoint" />
+            <mxPoint x="840" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-14" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="600" />
+            </Array>
+            <mxPoint x="200" y="465" as="sourcePoint" />
+            <mxPoint x="665" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-15" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=20;fontStyle=0;fontColor=#20334c;" value="Formal patients originate from GP records.&#xa;Several GP registrations may resolve&#xa;to one formal patient.&#xa;&#xa;The matching process is owned by D." vertex="1">
+          <mxGeometry height="143" width="610" x="1120" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-16" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=21;fontStyle=1;fontColor=#20334c;" value="LAB | A message has zero or more deliveries; each delivery refers to one receiving clinic." vertex="1">
+          <mxGeometry height="36" width="1685" x="45" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-17" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Laboratory&#xa;Sends results" vertex="1">
+          <mxGeometry height="90" width="265" x="70" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-18" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Lab result&#xa;One received Observation message" vertex="1">
+          <mxGeometry height="90" width="340" x="650" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-19" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Source patient record&#xa;LAB patient record" vertex="1">
+          <mxGeometry height="90" width="365" x="1300" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-20" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="335" y="815" as="sourcePoint" />
+            <mxPoint x="650" y="815" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-21" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToMany;endArrow=ERmandOne;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="990" y="815" as="sourcePoint" />
+            <mxPoint x="1300" y="815" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-22" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Result delivery&#xa;One delivery event" vertex="1">
+          <mxGeometry height="90" width="340" x="650" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-23" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Clinic&#xa;Receiving clinic" vertex="1">
+          <mxGeometry height="90" width="365" x="1300" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-24" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="820" y="860" as="sourcePoint" />
+            <mxPoint x="820" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-25" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToMany;endArrow=ERmandOne;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="990" y="995" as="sourcePoint" />
+            <mxPoint x="1300" y="995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-26" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=21;fontStyle=1;fontColor=#20334c;" value="PHARMACY | A dispense belongs to one source patient, one pharmacy and one medication." vertex="1">
+          <mxGeometry height="36" width="1685" x="45" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-27" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Source patient record&#xa;Pharmacy patient" vertex="1">
+          <mxGeometry height="90" width="300" x="70" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-28" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Dispense&#xa;One dispensing event" vertex="1">
+          <mxGeometry height="90" width="300" x="675" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-29" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Medication&#xa;Drug / strength / pack" vertex="1">
+          <mxGeometry height="90" width="340" x="1300" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-30" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERmandOne;endArrow=ERzeroToMany;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="370" y="1195" as="sourcePoint" />
+            <mxPoint x="675" y="1195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-31" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToMany;endArrow=ERmandOne;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="975" y="1195" as="sourcePoint" />
+            <mxPoint x="1300" y="1195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-32" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Pharmacy&#xa;Dispensing location" vertex="1">
+          <mxGeometry height="90" width="300" x="675" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-33" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToMany;endArrow=ERmandOne;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="825" y="1240" as="sourcePoint" />
+            <mxPoint x="825" y="1330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-34" edge="1" parent="1" style="edgeStyle=none;html=0;strokeColor=#415a75;strokeWidth=2;fontSize=18;startArrow=ERzeroToMany;endArrow=ERmandOne;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="1375" />
+            </Array>
+            <mxPoint x="220" y="1240" as="sourcePoint" />
+            <mxPoint x="675" y="1375" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-35" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=18;fontStyle=0;fontColor=#20334c;" value="Legend: circle = optional (zero); bar = one; crow foot = many. Cardinalities are conceptual; verify physical keys with C/D/E." vertex="1">
+          <mxGeometry height="33" width="1685" x="45" y="1460" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
