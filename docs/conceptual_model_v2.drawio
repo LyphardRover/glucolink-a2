@@ -1,19 +1,19 @@
 <mxfile host="app.diagrams.net">
-  <diagram name="GlucoLink A2 | Conceptual model v1" id="0-V-ZLAkslr5X6N0j1W6">
-    <mxGraphModel dx="1013" dy="552" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+  <diagram name="GlucoLink A2 | Conceptual model v2" id="0-V-ZLAkslr5X6N0j1W6">
+    <mxGraphModel dx="1013" dy="552" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="MmLLsrrUP3A1DvUAhW-e-1" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=34;fontStyle=1;fontColor=#20334c;" value="GlucoLink A2 | Conceptual model v2" vertex="1">
           <mxGeometry height="49" width="1685" x="45" y="25" as="geometry" />
         </mxCell>
-        <mxCell id="MmLLsrrUP3A1DvUAhW-e-2" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=19;fontStyle=0;fontColor=#20334c;" value="Task cards v3 | 10 conceptual entities | B: Zhihao Zhang | 6 Oct 2026 | Draft for C/D/E review" vertex="1">
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-2" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=19;fontStyle=0;fontColor=#20334c;" value="Database: glucolink_a2 | 10 conceptual entities | Zhihao Zhang" vertex="1">
           <mxGeometry height="34" width="1685" x="45" y="74" as="geometry" />
         </mxCell>
         <mxCell id="MmLLsrrUP3A1DvUAhW-e-3" parent="1" style="text;html=0;align=left;verticalAlign=top;fontSize=21;fontStyle=1;fontColor=#20334c;" value="IDENTITY | A source record links to zero or one formal patient; uncertain records remain unlinked." vertex="1">
           <mxGeometry height="36" width="1685" x="45" y="125" as="geometry" />
         </mxCell>
-        <mxCell id="MmLLsrrUP3A1DvUAhW-e-4" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Patient&#xa;Formal GlucoLink patient" vertex="1">
+        <mxCell id="MmLLsrrUP3A1DvUAhW-e-4" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Patient (golden record)&#xa;Canonical GlucoLink patient" vertex="1">
           <mxGeometry height="90" width="280" x="90" y="180" as="geometry" />
         </mxCell>
         <mxCell id="MmLLsrrUP3A1DvUAhW-e-5" parent="1" style="rounded=1;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=14;fontSize=20;fillColor=#e5effa;strokeColor=#526c89;" value="Source patient record&#xa;GP / LAB / pharmacy record" vertex="1">
