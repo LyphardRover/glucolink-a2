@@ -2,6 +2,19 @@
 
 Updated 2026-10-07; owner review pending. Companion: data_dictionary_v1.md (47 objects / 338 columns). **This is documentation, not DDL.** D/E/C/F own their implementations; proposed columns and unenforced logical references require their approval. Every field/type/nullability and observed constraint is listed in the dictionary.
 
+## Detailed diagram pages
+
+Use these full-resolution pages for report (v)c. Each page includes columns, types, nullability, primary keys and foreign-key targets. The overview is only a navigation aid. Blue cards were observed in the database; amber cards remain proposals for owner review. All nine pages are editable in [logical_model_v1.drawio](logical_model_v1.drawio).
+
+- [src_gp](logical_model_detail_src_gp.png)
+- [src_lab](logical_model_detail_src_lab.png)
+- [src_pharm](logical_model_detail_src_pharm.png)
+- [raw](logical_model_detail_raw.png)
+- [cleansed](logical_model_detail_cleansed.png)
+- [curated](logical_model_detail_curated.png)
+- [reporting](logical_model_detail_reporting.png)
+- [audit](logical_model_detail_audit.png)
+
 ## Layer lineage
 
 ```mermaid
