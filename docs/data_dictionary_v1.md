@@ -1,16 +1,16 @@
 # Package B — logical data dictionary v1
 
-Owner: Zhihao Zhang (B). Prepared 2026-10-06. **Review draft, not a migration script or final D/E sign-off.**
+Owner: Zhihao Zhang (B). Updated 2026-10-07. **Review draft, not a migration script or final D/E sign-off.**
 
 ## Evidence and reading guide
 
-Covers **47 objects / 338 columns**: 11 source, 11 RAW, 7 CLEANSED, 10 CURATED, 5 REPORTING (four views plus parameters), 3 AUDIT. Twenty table definitions were observed in the shared PostgreSQL catalog; the other 27 are contract/design drafts. No teammate SQL or shared objects were changed to produce this document.
+Covers **47 objects / 338 columns**: 11 source, 11 RAW, 7 CLEANSED, 10 CURATED, 5 REPORTING (four views plus parameters), 3 AUDIT. Twenty-one table definitions were observed in the shared PostgreSQL catalog; the other 26 are contract/design drafts. No teammate SQL or shared objects were changed to produce this document.
 
 Sources: Build Plan v2 §5, §6 and Appendices A–C retained by Task Cards v3 (2026-10-06), v3 D1/D8, the group guide, and E-owned `docs/star_schema_v1.drawio` on main d33375a. Live definitions were read independently. Numbers described as targets are acceptance expectations, not current data counts.
 
-**Nullable:** Yes/No is observed PostgreSQL enforcement, not business desirability. TBD means the object is not observed and its owner must confirm. Types on draft objects are proposals unless the source contract or E model defines them. RAW inherits source payload types; no source PK/FK/CHECK constraints are copied. Its four provenance types are proposed. Keys on views are logical grains, not database constraints. Missing foreign keys are not silently invented.
+**Nullable:** Yes/No is observed PostgreSQL enforcement, not business desirability. TBD means the object is not observed and its owner must confirm. Types on draft objects are proposals unless the source contract or E model defines them. RAW inherits source payload types; no source PK/FK/CHECK constraints are copied. Its four provenance types are proposed. Views have no primary-key or foreign-key constraints; their row grain is described separately. Missing foreign keys are not silently invented.
 
-**Known reconciliation points:** shared `src_lab.lab_patient.sex` is `character(1)`; the previously inspected main `01` used text, so C must reconcile its own release. `result_delivery.clinic_id` has no enforced FK in the observed schema. The source columns other than keys are often nullable. D must confirm exact lab-result and DQ-issue columns; E must confirm patient/fact nullability and final DDL. The E diagram provides field/type proposals for patient and facts; v3 D8 fixes home clinic to the lowest GP patient ID and permits RAW + CLEANSED input.
+**Reconciliation:** `src_lab.lab_patient.sex` is `character(1)` in both current source SQL and the shared catalog (checked 2026-10-07). `audit.identity_truth` now exists with PK `(source_system, source_patient_id)`. `result_delivery.clinic_id` has no enforced FK in the observed schema. The source columns other than keys are often nullable. D must confirm exact lab-result and DQ-issue columns; E must confirm patient/fact nullability and final DDL. The E diagram provides field/type proposals for patient and facts; v3 D8 fixes home clinic to the lowest GP patient ID and permits RAW + CLEANSED input.
 
 ## Object index
 
@@ -57,7 +57,7 @@ Sources: Build Plan v2 §5, §6 and Appendices A–C retained by Task Cards v3 (
 |`curated.fact_encounter`|E|One LINKED encounter; target 28|Contract draft; not observed|
 |`curated.fact_lab_result`|E|One VALID result linked to a canonical patient; target 32|Contract draft; not observed|
 |`curated.fact_dispense`|E|One LINKED dispense; target 65|Contract draft; not observed|
-|`audit.identity_truth`|C|One synthetic source identity answer-key row; NEVER used by matching|Contract draft; not observed|
+|`audit.identity_truth`|C|One synthetic source identity answer-key row; NEVER used by matching|Observed 2026-10-07|
 |`audit.test_result`|F|One acceptance-test result; history/key policy awaits F|Contract draft; not observed|
 |`reporting.vw_uc1_care_gaps`|E|One patient classified with a care gap|Contract draft; not observed|
 |`reporting.vw_uc2_pdc`|D|One eligible patient and drug class|Contract draft; not observed|
@@ -726,13 +726,13 @@ Observed constraints:
 
 **Grain:** One typed source encounter event.  
 **Status:** Contract draft; not observed.  
-**Basis:** Build Plan v2: typed copy; exact retained columns, keys and nullability await D.
+**Basis:** Build Plan v2: typed copy with no foreign keys back to source schemas; exact retained columns, keys and nullability await D.
 
 |Column|Type|PK / FK / uniqueness|Nullable|Meaning|
 |---|---|---|---|---|
 |`encounter_id`|`text`|PRIMARY KEY (encounter_id)|TBD|Source encounter identifier|
-|`gp_patient_id`|`text`|FOREIGN KEY (gp_patient_id) REFERENCES src_gp.gp_patient(gp_patient_id)|TBD|GP registration identifier|
-|`clinic_id`|`integer`|FOREIGN KEY (clinic_id) REFERENCES src_gp.clinic(clinic_id)|TBD|Source GP clinic identifier|
+|`gp_patient_id`|`text`|Source identifier; no FK to src_*|TBD|GP registration identifier|
+|`clinic_id`|`integer`|Source identifier; no FK to src_*|TBD|Source GP clinic identifier|
 |`encounter_date`|`date`|—|TBD|Date of the encounter|
 |`encounter_type`|`text`|—|TBD|STANDARD, CARE_PLAN or MEDICATION_REVIEW|
 |`diagnosis_code`|`text`|—|TBD|Recorded diagnosis code|
@@ -743,14 +743,14 @@ Observed constraints:
 
 **Grain:** One typed source dispense event.  
 **Status:** Contract draft; not observed.  
-**Basis:** Build Plan v2: typed copy; exact retained columns, keys and nullability await D.
+**Basis:** Build Plan v2: typed copy with no foreign keys back to source schemas; exact retained columns, keys and nullability await D.
 
 |Column|Type|PK / FK / uniqueness|Nullable|Meaning|
 |---|---|---|---|---|
 |`dispense_id`|`text`|PRIMARY KEY (dispense_id)|TBD|Source dispensing-event identifier|
-|`pharmacy_patient_id`|`text`|FOREIGN KEY (pharmacy_patient_id) REFERENCES src_pharm.pharmacy_patient(pharmacy_patient_id)|TBD|Pharmacy-local patient identifier|
-|`pharmacy_id`|`integer`|FOREIGN KEY (pharmacy_id) REFERENCES src_pharm.pharmacy(pharmacy_id)|TBD|Source pharmacy identifier|
-|`pbs_item_code`|`text`|FOREIGN KEY (pbs_item_code) REFERENCES src_pharm.medication(pbs_item_code)|TBD|PBS medication-item identifier|
+|`pharmacy_patient_id`|`text`|Source identifier; no FK to src_*|TBD|Pharmacy-local patient identifier|
+|`pharmacy_id`|`integer`|Source identifier; no FK to src_*|TBD|Source pharmacy identifier|
+|`pbs_item_code`|`text`|Source identifier; no FK to src_*|TBD|PBS medication-item identifier|
 |`dispensed_date`|`date`|—|TBD|Dispensing date|
 |`quantity`|`integer`|—|TBD|Quantity dispensed|
 |`days_supply`|`integer`|—|TBD|Days of supply for the dispensing event|
@@ -841,14 +841,14 @@ Observed constraints:
 ## audit.identity_truth
 
 **Grain:** One synthetic source identity answer-key row; NEVER used by matching.  
-**Status:** Contract draft; not observed.  
-**Basis:** Build Plan v2 §5; physical types/nullability proposed for owner review.
+**Status:** Observed 2026-10-07.  
+**Basis:** Read-only PostgreSQL catalog inspection; composite primary key confirmed.
 
 |Column|Type|PK / FK / uniqueness|Nullable|Meaning|
 |---|---|---|---|---|
-|`true_person_id`|`text`|—|TBD|Synthetic evaluation-only person label; excluded from matching|
-|`source_system`|`text`|Proposed composite key|TBD|GP, LAB or PHARM source label|
-|`source_patient_id`|`text`|Proposed composite key|TBD|Identifier local to the named source|
+|`true_person_id`|`text`|—|Yes|Synthetic evaluation-only person label; excluded from matching|
+|`source_system`|`text`|PRIMARY KEY (source_system, source_patient_id)|No|GP, LAB or PHARM source label|
+|`source_patient_id`|`text`|PRIMARY KEY (source_system, source_patient_id)|No|Identifier local to the named source|
 
 ## audit.test_result
 
