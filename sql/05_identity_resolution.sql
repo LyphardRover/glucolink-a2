@@ -179,8 +179,13 @@ SELECT
          WHEN r1.r1_count IS NULL AND r2.r2_count = 1 THEN 'LINKED'
          WHEN r1.r1_count IS NULL AND r2.r2_count > 1 THEN 'REVIEW'
          ELSE 'UNMATCHED' END,
-    CASE WHEN r1.r1_count >= 1 THEN 'R1'
-         WHEN r2.r2_count >= 1 THEN 'R2'
+    -- match_rule is only ever filled for a LINKED row (GP / R1 / R2);
+    -- REVIEW and UNMATCHED always get NULL here (10/8 correction: an
+    -- ambiguous REVIEW used to still record which rule produced the
+    -- multiple candidates -- the task card wants that column empty
+    -- unless match_status = 'LINKED').
+    CASE WHEN r1.r1_count = 1 THEN 'R1'
+         WHEN r1.r1_count IS NULL AND r2.r2_count = 1 THEN 'R2'
          ELSE NULL END,
     COALESCE(r1.r1_count, r2.r2_count, 0)
 FROM non_gp ng
