@@ -117,7 +117,10 @@ FROM src_lab.lab_patient;
 -- current century first (20yy), then if that date is AFTER the as_of_date
 -- (read from reporting.rule_parameter, not hard-coded), subtract 100
 -- years. A blank date_of_birth becomes NULL before parsing. Medicare:
--- same digits-before-'/', exactly-10-digits-or-NULL rule as the others.
+-- same rule as GP/LAB -- split on '/' first (drop the IRN suffix), THEN
+-- strip to digits, kept only if exactly 10 digits (10/8 correction: the
+-- '/' split was missing here, so a PHARM number with a suffix was not
+-- having it dropped before the digit count was checked).
 -- ---------------------------------------------------------------------
 INSERT INTO cleansed.patient_record
     (source_system, source_patient_id, given_name, family_name,
@@ -172,8 +175,8 @@ SELECT
     END::date,
     NULL,
     CASE
-        WHEN LENGTH(REGEXP_REPLACE(r.medicare_number, '\D', '', 'g')) = 10
-        THEN REGEXP_REPLACE(r.medicare_number, '\D', '', 'g')
+        WHEN LENGTH(REGEXP_REPLACE(SPLIT_PART(r.medicare_number, '/', 1), '\D', '', 'g')) = 10
+        THEN REGEXP_REPLACE(SPLIT_PART(r.medicare_number, '/', 1), '\D', '', 'g')
         ELSE NULL
     END,
     NULL
