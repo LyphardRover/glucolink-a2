@@ -1,19 +1,20 @@
 -- File:          04_cleansed_standardise.sql
 -- Package/owner: D - Yutong Geng
 -- Purpose:       Build cleansed.patient_record: one standardised row per
---                source patient record across GP, LAB and PHARM (48 rows
---                at full load; 4 rows for the Thursday C2 sample).
+--                source patient record across GP, LAB and PHARM (48 rows).
 -- Reads:         src_gp.gp_patient, src_lab.lab_patient,
---                src_pharm.pharmacy_patient.
+--                src_pharm.pharmacy_patient, reporting.rule_parameter.
 -- Writes:        cleansed.patient_record.
 -- Design link:   A2 Build Plan v2, section 5.3 (CLEANSED, owner D) and
 --                section 6 (data-quality / standardisation rules).
--- Run after:     00_setup.sql, 01_src_tables.sql, 02_src_data.sql.
--- Re-runnable:   Yes; removes its own objects first (DROP TABLE IF EXISTS).
+--                Remediation Plan v3, task card D-1.
+-- Run after:      00_setup.sql, 01_src_tables.sql, 02_src_data.sql,
+--                 02b_src_lab_messages.sql, 03_raw_extract.sql.
+-- Re-runnable:    Yes; removes its own objects first (DROP TABLE IF EXISTS).
 
 BEGIN;
 
--- Guard: confirm schemas and source tables exist before rebuilding.
+-- Guard: confirm schemas, source tables and rule_parameter exist.
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -27,31 +28,39 @@ BEGIN
        OR to_regclass('src_pharm.pharmacy_patient') IS NULL THEN
         RAISE EXCEPTION 'One or more source patient tables are missing.';
     END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM reporting.rule_parameter WHERE param_name = 'as_of_date'
+    ) THEN
+        RAISE EXCEPTION 'reporting.rule_parameter has no as_of_date row.';
+    END IF;
 END
 $$;
 
--- Removes its own objects first, per section 8 re-runnable pattern.
 DROP TABLE IF EXISTS cleansed.patient_record CASCADE;
 
 CREATE TABLE cleansed.patient_record (
     source_system     text NOT NULL,   -- 'GP' / 'LAB' / 'PHARM'
     source_patient_id text NOT NULL,
-    given_name         text,            -- first word of the given name, upper case
-    family_name        text,            -- upper case
+    given_name         text,            -- first word only, upper case, blank -> NULL
+    family_name        text,            -- upper case, blank -> NULL
     dob                 date,
     sex                  char(1),         -- NULL where the source has no sex field
-    medicare10           text,            -- 10 digits, or NULL ("no Medicare" is SQL NULL, never text)
-    postcode             text,            -- NULL where the source has no postcode field
+    medicare10           text,            -- exactly 10 digits, or NULL otherwise
+    postcode             text,            -- blank -> NULL; NULL where source has no field
     PRIMARY KEY (source_system, source_patient_id)
 );
 
 COMMENT ON TABLE cleansed.patient_record
-IS 'One standardised row per source patient record (GP/LAB/PHARM), per Build Plan v2 section 5.3.';
+IS 'One standardised row per source patient record (GP/LAB/PHARM), per Build Plan v2 section 5.3 and Remediation Plan v3 card D-1.';
 
 -- ---------------------------------------------------------------------
--- GP: first_name/last_name already split; dob already a DATE; sex and
--- postcode already present. Medicare arrives with spaces, e.g.
--- '2123 45670 1' -> strip to digits only.
+-- GP: first_name/last_name already split; dob already a DATE (no century
+-- issue). given_name now also takes only the first word (D-1 fix #3), and
+-- blank given_name/family_name/postcode become NULL, not empty text
+-- (D-1 fix #4). Medicare: keep digits before '/', keep the result only
+-- if it is exactly 10 digits, else NULL (D-1 fix #2) -- applied uniformly
+-- even though GP's source format has no '/' suffix.
 -- ---------------------------------------------------------------------
 INSERT INTO cleansed.patient_record
     (source_system, source_patient_id, given_name, family_name,
@@ -59,22 +68,25 @@ INSERT INTO cleansed.patient_record
 SELECT
     'GP',
     gp_patient_id,
-    UPPER(TRIM(first_name)),
-    UPPER(TRIM(last_name)),
+    NULLIF(UPPER(TRIM(SPLIT_PART(TRIM(first_name), ' ', 1))), ''),
+    NULLIF(UPPER(TRIM(last_name)), ''),
     dob,
     UPPER(TRIM(sex)),
-    NULLIF(REGEXP_REPLACE(medicare_number, '\D', '', 'g'), ''),
-    TRIM(postcode)
+    CASE
+        WHEN LENGTH(REGEXP_REPLACE(SPLIT_PART(medicare_number, '/', 1), '\D', '', 'g')) = 10
+        THEN REGEXP_REPLACE(SPLIT_PART(medicare_number, '/', 1), '\D', '', 'g')
+        ELSE NULL
+    END,
+    NULLIF(TRIM(postcode), '')
 FROM src_gp.gp_patient;
 
 -- ---------------------------------------------------------------------
--- LAB: patient_name arrives combined, e.g. 'SMITH, Thomas J' -- split on
--- the comma first (family name before it, given name is the first word
--- after it). dob arrives as text in DD/MM/YYYY. Medicare carries an IRN
--- suffix after a slash, e.g. '2123456701/1' -- only the part before the
--- slash is the real Medicare number; the suffix must be dropped, not
--- concatenated in, or medicare10 would come out 11 digits.
--- No postcode field exists on this source table -> NULL.
+-- LAB: patient_name arrives combined, e.g. 'SMITH, Thomas J' -- family
+-- name before the comma, given name the first word after it (already
+-- first-word-only, unchanged by D-1). dob arrives as text DD/MM/YYYY
+-- (four-digit year, no century issue); a blank dob text becomes NULL
+-- before parsing, per D-1 fix #1. Medicare keeps digits before '/',
+-- only kept if exactly 10 digits (D-1 fix #2).
 -- ---------------------------------------------------------------------
 INSERT INTO cleansed.patient_record
     (source_system, source_patient_id, given_name, family_name,
@@ -82,74 +94,121 @@ INSERT INTO cleansed.patient_record
 SELECT
     'LAB',
     lab_patient_id,
-    UPPER(TRIM(SPLIT_PART(TRIM(SPLIT_PART(patient_name, ',', 2)), ' ', 1))),
-    UPPER(TRIM(SPLIT_PART(patient_name, ',', 1))),
-    TO_DATE(dob, 'DD/MM/YYYY'),
+    NULLIF(UPPER(TRIM(SPLIT_PART(TRIM(SPLIT_PART(patient_name, ',', 2)), ' ', 1))), ''),
+    NULLIF(UPPER(TRIM(SPLIT_PART(patient_name, ',', 1))), ''),
+    CASE
+        WHEN NULLIF(TRIM(dob), '') IS NULL THEN NULL
+        ELSE TO_DATE(TRIM(dob), 'DD/MM/YYYY')
+    END,
     UPPER(TRIM(sex)),
-    NULLIF(REGEXP_REPLACE(SPLIT_PART(medicare_number, '/', 1), '\D', '', 'g'), ''),
+    CASE
+        WHEN LENGTH(REGEXP_REPLACE(SPLIT_PART(medicare_number, '/', 1), '\D', '', 'g')) = 10
+        THEN REGEXP_REPLACE(SPLIT_PART(medicare_number, '/', 1), '\D', '', 'g')
+        ELSE NULL
+    END,
     NULL
 FROM src_lab.lab_patient;
 
 -- ---------------------------------------------------------------------
--- PHARM: given_name/surname already split, but given_name may be only an
--- initial (e.g. 'T' for Thomas) -- kept as-is; this is why identity
--- resolution (05) cannot rely on name alone. date_of_birth arrives as
--- text in DD-Mon-YY; PostgreSQL's own century pivot reads '62' as 2062,
--- which is wrong, so the 100-year rule from section 5.3/8 is applied
--- manually: yy >= 40 -> 19yy, else -> 20yy (14-May-62 -> 1962-05-14).
--- No sex or postcode fields exist on this source table -> NULL.
--- Medicare can be NULL in the source (e.g. Lewis) -- left NULL here,
--- stored as SQL NULL, never as text.
+-- PHARM: given_name/surname already split (given_name may be only an
+-- initial, e.g. 'T' -- unchanged, still one word). date_of_birth arrives
+-- as text DD-Mon-YY. D-1 fix #1 replaces the old fixed "yy >= 40 -> 19xx"
+-- cutoff with the Build Plan v2 section 6 rule: parse assuming the
+-- current century first (20yy), then if that date is AFTER the as_of_date
+-- (read from reporting.rule_parameter, not hard-coded), subtract 100
+-- years. A blank date_of_birth becomes NULL before parsing. Medicare:
+-- same digits-before-'/', exactly-10-digits-or-NULL rule as the others.
 -- ---------------------------------------------------------------------
 INSERT INTO cleansed.patient_record
     (source_system, source_patient_id, given_name, family_name,
      dob, sex, medicare10, postcode)
-WITH parsed_dob AS (
+WITH as_of AS (
+    SELECT param_value::date AS as_of_date
+    FROM reporting.rule_parameter
+    WHERE param_name = 'as_of_date'
+),
+parsed_dob AS (
     SELECT
         pharmacy_patient_id,
         given_name,
         surname,
         medicare_number,
-        SPLIT_PART(date_of_birth, '-', 1)::int AS dob_day,
-        SPLIT_PART(date_of_birth, '-', 2)       AS dob_mon_abbr,
-        SPLIT_PART(date_of_birth, '-', 3)::int   AS dob_yy
+        NULLIF(TRIM(date_of_birth), '') AS dob_text
     FROM src_pharm.pharmacy_patient
+),
+dob_parts AS (
+    SELECT
+        pharmacy_patient_id, given_name, surname, medicare_number, dob_text,
+        CASE WHEN dob_text IS NULL THEN NULL
+             ELSE SPLIT_PART(dob_text, '-', 1)::int END AS dob_day,
+        CASE WHEN dob_text IS NULL THEN NULL
+             ELSE SPLIT_PART(dob_text, '-', 2) END AS dob_mon_abbr,
+        CASE WHEN dob_text IS NULL THEN NULL
+             ELSE SPLIT_PART(dob_text, '-', 3)::int END AS dob_yy
+    FROM parsed_dob
+),
+dob_resolved AS (
+    SELECT
+        pharmacy_patient_id, given_name, surname, medicare_number,
+        CASE
+            WHEN dob_text IS NULL THEN NULL
+            ELSE MAKE_DATE(
+                2000 + dob_yy,
+                EXTRACT(MONTH FROM TO_DATE(dob_mon_abbr, 'Mon'))::int,
+                dob_day
+            )
+        END AS dob_in_2000s
+    FROM dob_parts
 )
 SELECT
     'PHARM',
-    pharmacy_patient_id,
-    UPPER(TRIM(given_name)),
-    UPPER(TRIM(surname)),
-    MAKE_DATE(
-        CASE WHEN dob_yy >= 40 THEN 1900 + dob_yy ELSE 2000 + dob_yy END,
-        EXTRACT(MONTH FROM TO_DATE(dob_mon_abbr, 'Mon'))::int,
-        dob_day
-    ),
+    r.pharmacy_patient_id,
+    NULLIF(UPPER(TRIM(SPLIT_PART(TRIM(r.given_name), ' ', 1))), ''),
+    NULLIF(UPPER(TRIM(r.surname)), ''),
+    CASE
+        WHEN r.dob_in_2000s IS NULL THEN NULL
+        WHEN r.dob_in_2000s > a.as_of_date THEN r.dob_in_2000s - INTERVAL '100 years'
+        ELSE r.dob_in_2000s
+    END::date,
     NULL,
-    NULLIF(REGEXP_REPLACE(medicare_number, '\D', '', 'g'), ''),
+    CASE
+        WHEN LENGTH(REGEXP_REPLACE(r.medicare_number, '\D', '', 'g')) = 10
+        THEN REGEXP_REPLACE(r.medicare_number, '\D', '', 'g')
+        ELSE NULL
+    END,
     NULL
-FROM parsed_dob;
+FROM dob_resolved r
+CROSS JOIN as_of a;
 
 COMMIT;
 
--- ===================== Acceptance check (Build Plan v2 "Done when") =====================
--- Expected, exactly:
--- GP    GP-0001  THOMAS SMITH  1962-05-14  2123456701
--- LAB   PATH0001 THOMAS SMITH  1962-05-14  2123456701
--- PHARM PH-1001  T      SMITH  1962-05-14  2123456701
--- PHARM PH-1014  E      LEWIS  1949-01-15  NULL
+-- ===================== Acceptance checks (card D-1) =====================
+
+-- 4-row spot check, unchanged:
+-- GP-0001  THOMAS SMITH  1962-05-14  2123456701
+-- PATH0001 THOMAS SMITH  1962-05-14  2123456701
+-- PH-1001  T      SMITH  1962-05-14  2123456701
+-- PH-1014  E      LEWIS  1949-01-15  NULL
 SELECT source_system, source_patient_id, given_name, family_name, dob, medicare10
 FROM cleansed.patient_record
 WHERE source_patient_id IN ('GP-0001', 'PATH0001', 'PH-1001', 'PH-1014')
 ORDER BY source_patient_id;
 
--- Supporting check: row count should be 4 now (C2 sample); 48 once C's
--- full C3 load (02_src_data.sql remainder + 02b) lands by Thursday 15:00.
-SELECT count(*) AS row_count FROM cleansed.patient_record;
-
--- Supporting check: no medicare10 value left with the wrong digit count
--- (10 expected, NULL allowed -- e.g. Lewis has no Medicare on file).
-SELECT source_system, source_patient_id, medicare10, LENGTH(medicare10) AS len
+-- Total should be 48 (GP 18 / LAB 17 / PHARM 13).
+SELECT source_system, count(*) AS row_count
 FROM cleansed.patient_record
-WHERE medicare10 IS NOT NULL AND LENGTH(medicare10) <> 10;
--- Expect 0 rows.
+GROUP BY source_system
+ORDER BY source_system;
+
+-- No medicare10 of the wrong length should survive (NULLs are excluded
+-- automatically since length(NULL) <> 10 is NULL, not true).
+SELECT count(*) AS wrong_length_count
+FROM cleansed.patient_record
+WHERE length(medicare10) <> 10;
+-- Expect 0.
+
+-- Spot checks named in the task card.
+SELECT source_patient_id, medicare10 FROM cleansed.patient_record WHERE source_patient_id = 'PH-1006';
+-- Expect 2567890145.
+SELECT source_patient_id, medicare10 FROM cleansed.patient_record WHERE source_patient_id = 'PATH0004';
+-- Expect 5456789034.
