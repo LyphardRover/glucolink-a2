@@ -1,14 +1,16 @@
 # GlucoLink data dictionary
 
-Database: glucolink_a2. Maintainer: Zhihao Zhang (B). Updated 8 October 2026.
+Database: glucolink_a2. Maintainer: Zhihao Zhang (B). Updated 9 October 2026.
 
 ## Reading the model
 
-This dictionary covers 47 objects and 339 columns. Sources are the agreed data contract, business_rules_v1.2, main 3f7e03e and the PostgreSQL catalog from glucolink_a2_test after two successful 00–06 runs on 8 October. Thirty-five table definitions are present in the catalog. The other twelve objects must be compared with their owners’ completed SQL before the final integration freeze.
+This dictionary covers 47 objects and 339 columns. Thirty-five definitions were checked against the isolated test catalog at 3f7e03e on 8 October. Four additional CLEANSED tables now have published definitions in 04 d4ed184, and three fact tables in 07 833d05d. Those seven definitions were reviewed as code on 9 October; B has not rerun them or accepted their results in this review.
 
-Yes/No records known physical nullability. TBD identifies nullability not yet established by the published implementation. A logical reference is a design relationship, not a claim that PostgreSQL enforces an FK. Reporting views have no PK/FK. RAW retains source payloads and four provenance fields without copying source key constraints.
+Planned objects: reporting.vw_uc1_care_gaps, reporting.vw_uc2_pdc, reporting.vw_uc3_hba1c_trend, reporting.vw_uc4_care_path_breaks, audit.test_result. Planned PK / Planned FK are design constraints only; views have no PK.
 
-Owner denotes a work package, not a database login. B maintains this document. C owns source and RAW definitions; B supplies lab messages and deliveries. D owns CLEANSED and UC2/UC4. E owns CURATED and UC1/UC3. F owns test results and dashboards.
+Yes/No is column nullability from the cited catalog or SQL definition; TBD awaits implementation. Solid relationship lines represent an FK defined in the cited SQL/catalog. The twelve new fact-to-dimension FKs require runtime acceptance of 07. The dashed patient_source_link relationship remains logical until D publishes its FK.
+
+Owner identifies the work package, not a login. C owns source and RAW definitions; B supplies lab message data and common setup. D owns CLEANSED and UC2/UC4; E owns CURATED and UC1/UC3; F owns test results and Excel charts.
 
 ## Object index
 
@@ -66,6 +68,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One GP clinic.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |clinic_id|integer|PRIMARY KEY (clinic_id)|No|—|Source GP clinic identifier|
@@ -76,6 +80,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## src_gp.encounter
 
 **Owner:** C. **Grain:** One GP encounter.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -91,6 +97,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## src_gp.gp_patient
 
 **Owner:** C. **Grain:** One GP registration, not necessarily one real person.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -108,6 +116,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One laboratory patient record.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |lab_patient_id|text|PRIMARY KEY (lab_patient_id)|No|—|Laboratory-local patient identifier|
@@ -120,6 +130,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One laboratory.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |lab_id|integer|PRIMARY KEY (lab_id)|No|—|Source laboratory identifier|
@@ -129,6 +141,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## src_lab.observation_message
 
 **Owner:** B / C. **Grain:** One received FHIR Observation message; duplicate clinical events remain separate messages.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -142,6 +156,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** B / C. **Grain:** One recorded delivery of a message to a clinic.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |delivery_id|text|PRIMARY KEY (delivery_id)|No|—|Delivery-event identifier|
@@ -152,6 +168,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## src_pharm.dispense
 
 **Owner:** C. **Grain:** One dispensing event.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -167,6 +185,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One PBS medication item.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |pbs_item_code|text|PRIMARY KEY (pbs_item_code)|No|—|PBS medication-item identifier|
@@ -180,6 +200,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One pharmacy.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |pharmacy_id|integer|PRIMARY KEY (pharmacy_id)|No|—|Source pharmacy identifier|
@@ -189,6 +211,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## src_pharm.pharmacy_patient
 
 **Owner:** C. **Grain:** One pharmacy patient registration.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -202,6 +226,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.gp_clinic
 
 **Owner:** C. **Grain:** One unchanged source row from src_gp.clinic.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -217,6 +243,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.gp_encounter
 
 **Owner:** C. **Grain:** One unchanged source row from src_gp.encounter.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -236,6 +264,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.gp_patient
 
 **Owner:** C. **Grain:** One unchanged source row from src_gp.gp_patient.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -257,6 +287,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One unchanged source row from src_lab.result_delivery.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |delivery_id|text|—|Yes|—|Delivery-event identifier|
@@ -272,6 +304,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One unchanged source row from src_lab.laboratory.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |lab_id|integer|—|Yes|—|Source laboratory identifier|
@@ -285,6 +319,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.lab_observation
 
 **Owner:** C. **Grain:** One unchanged source row from src_lab.observation_message.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -302,6 +338,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One unchanged source row from src_lab.lab_patient.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |lab_patient_id|text|—|Yes|—|Laboratory-local patient identifier|
@@ -317,6 +355,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.pharm_dispense
 
 **Owner:** C. **Grain:** One unchanged source row from src_pharm.dispense.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -336,6 +376,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One unchanged source row from src_pharm.medication.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |pbs_item_code|text|—|Yes|—|PBS medication-item identifier|
@@ -352,6 +394,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## raw.pharm_patient
 
 **Owner:** C. **Grain:** One unchanged source row from src_pharm.pharmacy_patient.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -370,6 +414,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** C. **Grain:** One unchanged source row from src_pharm.pharmacy.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |pharmacy_id|integer|—|Yes|—|Source pharmacy identifier|
@@ -384,67 +430,77 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** D. **Grain:** One typed source dispense event.
 
+**Definition status:** SQL-defined in 04 d4ed184; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|dispense_id|text|PRIMARY KEY (dispense_id)|TBD|—|Source dispensing-event identifier|
-|pharmacy_patient_id|text|Source identifier; no FK to src_*|TBD|—|Pharmacy-local patient identifier|
-|pharmacy_id|integer|Source identifier; no FK to src_*|TBD|—|Source pharmacy identifier|
-|pbs_item_code|text|Source identifier; no FK to src_*|TBD|—|PBS medication-item identifier|
-|dispensed_date|date|—|TBD|—|Dispensing date|
-|quantity|integer|—|TBD|—|Quantity dispensed|
-|days_supply|integer|—|TBD|—|Days of supply for the dispensing event|
+|dispense_id|text|PRIMARY KEY|No|—|Source dispensing-event identifier|
+|pharmacy_patient_id|text|—|Yes|—|Pharmacy-local patient identifier|
+|pharmacy_id|integer|—|Yes|—|Source pharmacy identifier|
+|pbs_item_code|text|—|Yes|—|PBS medication-item identifier|
+|dispensed_date|date|—|Yes|—|Dispensing date|
+|quantity|integer|—|Yes|—|Quantity dispensed|
+|days_supply|integer|—|Yes|—|Days of supply for the dispensing event|
 
 ## cleansed.dq_issue
 
 **Owner:** D. **Grain:** One recorded data-quality issue; several may refer to a record.
 
+**Definition status:** SQL-defined in 04 d4ed184; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|issue_id|bigint|Proposed PK|TBD|—|Proposed generated issue identifier|
-|table_name|text|—|TBD|—|Table containing the affected record|
-|record_id|text|—|TBD|—|Identifier of the affected record|
-|rule_code|text|—|TBD|—|Violated quality rule|
-|detail|text|—|TBD|—|Readable explanation of an issue or break|
+|issue_id|bigint|PRIMARY KEY|No|nextval('cleansed.dq_issue_issue_id_seq'::regclass)|Automatically generated data-quality issue identifier|
+|table_name|text|—|No|—|Table containing the affected record|
+|record_id|text|—|No|—|Identifier of the affected record|
+|rule|text|—|No|—|Violated data-quality rule|
+|detail|text|—|Yes|—|Readable explanation of an issue or break|
 
 ## cleansed.encounter
 
 **Owner:** D. **Grain:** One typed source encounter event.
 
+**Definition status:** SQL-defined in 04 d4ed184; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|encounter_id|text|PRIMARY KEY (encounter_id)|TBD|—|Source encounter identifier|
-|gp_patient_id|text|Source identifier; no FK to src_*|TBD|—|GP registration identifier|
-|clinic_id|integer|Source identifier; no FK to src_*|TBD|—|Source GP clinic identifier|
-|encounter_date|date|—|TBD|—|Date of the encounter|
-|encounter_type|text|—|TBD|—|STANDARD, CARE_PLAN or MEDICATION_REVIEW|
-|diagnosis_code|text|—|TBD|—|Recorded diagnosis code|
-|medication_review_flag|boolean|—|TBD|—|Whether the event is a medication review|
-|care_plan_flag|boolean|—|TBD|—|Whether the event is a care-plan event|
+|encounter_id|text|PRIMARY KEY|No|—|Source encounter identifier|
+|gp_patient_id|text|—|Yes|—|GP registration identifier|
+|clinic_id|integer|—|Yes|—|Source GP clinic identifier|
+|encounter_date|date|—|Yes|—|Date of the encounter|
+|encounter_type|text|—|Yes|—|STANDARD, CARE_PLAN or MEDICATION_REVIEW|
+|diagnosis_code|text|—|Yes|—|Recorded diagnosis code|
+|medication_review_flag|boolean|—|Yes|—|Whether the event is a medication review|
+|care_plan_flag|boolean|—|Yes|—|Whether the event is a care-plan event|
 
 ## cleansed.lab_result
 
 **Owner:** D. **Grain:** One parsed message including DQ-rejected and duplicate messages (target 36).
 
+**Definition status:** SQL-defined in 04 d4ed184; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|message_id|text|Proposed PK retained for traceability|TBD|—|Transport/message identifier; distinct from observation_id|
-|lab_patient_id|text|Proposed retained source reference|TBD|—|Laboratory-local patient identifier|
-|lab_id|integer|Proposed retained laboratory reference|TBD|—|Source laboratory identifier|
-|observation_id|text|—|TBD|—|FHIR clinical observation identifier used for duplicate detection|
-|status|text|—|TBD|—|FHIR Observation status|
-|loinc_code|text|—|TBD|—|Laboratory test code|
-|value_as_received|numeric|—|TBD|—|Original numeric value before unit conversion|
-|unit_as_received|text|—|TBD|—|Original unit including deliberately empty units|
-|hba1c_mmol_mol|numeric(6,1)|—|TBD|—|Converted value; NULL for invalid unit|
-|collected_date|date|—|TBD|—|Sydney date from timestamp|
-|reported_date|date|—|TBD|—|Sydney date from timestamp|
-|returned_to_clinic_id|integer|Logical reference clinic|TBD|—|Clinic recorded for result return, if any|
-|returned_at|timestamptz|—|TBD|—|Result-return timestamp, if any|
-|dq_status|text|—|TBD|—|VALID / DUPLICATE / REJECTED_UNIT / FUTURE_DATE|
+|message_id|text|PRIMARY KEY|No|—|Transport/message identifier; distinct from observation_id|
+|lab_id|integer|—|Yes|—|Source laboratory identifier|
+|lab_patient_id|text|—|Yes|—|Laboratory-local patient identifier|
+|observation_id|text|—|Yes|—|FHIR clinical observation identifier used for duplicate detection|
+|status|text|—|Yes|—|FHIR Observation status|
+|loinc_code|text|—|Yes|—|Laboratory test code|
+|value_as_received|text|—|Yes|—|Original numeric value before unit conversion|
+|unit_as_received|text|—|Yes|—|Original unit including deliberately empty units|
+|hba1c_mmol_mol|numeric(6,1)|—|Yes|—|Converted value; NULL for invalid unit|
+|collected_date|date|—|Yes|—|Sydney date from timestamp|
+|reported_date|date|—|Yes|—|Sydney date from timestamp|
+|returned_to_clinic_id|integer|—|Yes|—|Clinic recorded for result return, if any|
+|returned_at|timestamptz|—|Yes|—|Result-return timestamp, if any|
+|dq_status|text|—|No|—|VALID / DUPLICATE / REJECTED_UNIT / FUTURE_DATE|
 
 ## cleansed.patient_master
 
 **Owner:** D. **Grain:** One canonical GP-anchored person (target 17).
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -459,6 +515,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## cleansed.patient_record
 
 **Owner:** D. **Grain:** One standardised source patient record; source system and source ID distinguish identities.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -475,6 +533,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** D. **Grain:** One resolution decision for a source patient (target 48).
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |source_system|text|PRIMARY KEY (source_system, source_patient_id)|No|—|GP, LAB or PHARM source label|
@@ -488,6 +548,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One clinic dimension member.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |clinic_key|integer|PRIMARY KEY (clinic_key)|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate clinic dimension key|
@@ -499,6 +561,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## curated.dim_date
 
 **Owner:** E. **Grain:** One date dimension member.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -514,6 +578,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One lab dimension member.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |lab_key|integer|PRIMARY KEY (lab_key)|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate laboratory dimension key|
@@ -524,6 +590,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## curated.dim_medication
 
 **Owner:** E. **Grain:** One medication dimension member.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -539,6 +607,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One canonical patient.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |patient_key|integer|PRIMARY KEY (patient_key)|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate patient dimension key|
@@ -552,6 +622,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One pharmacy dimension member.
 
+**Definition status:** Implemented in 00–06 at 3f7e03e
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |pharmacy_key|integer|PRIMARY KEY (pharmacy_key)|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate pharmacy dimension key|
@@ -562,6 +634,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## curated.dim_test
 
 **Owner:** E. **Grain:** One test dimension member.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -574,53 +648,61 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One LINKED dispense; target 65.
 
+**Definition status:** SQL-defined in 07 833d05d; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|dispense_key|integer|PK|TBD|—|Surrogate dispensing fact key|
-|dispense_id|text|UQ|TBD|—|Source dispensing-event identifier|
-|patient_key|integer|FK curated.dim_patient(patient_key)|TBD|—|Surrogate patient dimension key|
-|date_key|integer|FK curated.dim_date(date_key)|TBD|—|Date dimension key for the event date|
-|pharmacy_key|integer|FK curated.dim_pharmacy(pharmacy_key)|TBD|—|Surrogate pharmacy dimension key|
-|medication_key|integer|FK curated.dim_medication(medication_key)|TBD|—|Surrogate medication dimension key|
-|quantity|integer|—|TBD|—|Quantity dispensed|
-|days_supply|integer|—|TBD|—|Days of supply for the dispensing event|
+|dispense_key|integer|PRIMARY KEY|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate dispensing fact key|
+|dispense_id|text|UNIQUE|No|—|Source dispensing-event identifier|
+|patient_key|integer|FOREIGN KEY → curated.dim_patient(patient_key)|No|—|Surrogate patient dimension key|
+|date_key|integer|FOREIGN KEY → curated.dim_date(date_key)|No|—|Date dimension key for the event date|
+|pharmacy_key|integer|FOREIGN KEY → curated.dim_pharmacy(pharmacy_key)|No|—|Surrogate pharmacy dimension key|
+|medication_key|integer|FOREIGN KEY → curated.dim_medication(medication_key)|No|—|Surrogate medication dimension key|
+|quantity|integer|—|Yes|—|Quantity dispensed|
+|days_supply|integer|—|Yes|—|Days of supply for the dispensing event|
 
 ## curated.fact_encounter
 
 **Owner:** E. **Grain:** One LINKED encounter; target 28.
 
+**Definition status:** SQL-defined in 07 833d05d; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|encounter_key|integer|PK|TBD|—|Surrogate encounter fact key|
-|encounter_id|text|UQ|TBD|—|Source encounter identifier|
-|patient_key|integer|FK curated.dim_patient(patient_key)|TBD|—|Surrogate patient dimension key|
-|date_key|integer|FK curated.dim_date(date_key)|TBD|—|Date dimension key for the event date|
-|clinic_key|integer|FK curated.dim_clinic(clinic_key)|TBD|—|Surrogate clinic dimension key|
-|encounter_type|text|—|TBD|—|STANDARD, CARE_PLAN or MEDICATION_REVIEW|
-|diagnosis_code|text|—|TBD|—|Recorded diagnosis code|
-|medication_review_flag|boolean|—|TBD|—|Whether the event is a medication review|
-|care_plan_flag|boolean|—|TBD|—|Whether the event is a care-plan event|
+|encounter_key|integer|PRIMARY KEY|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate encounter fact key|
+|encounter_id|text|UNIQUE|No|—|Source encounter identifier|
+|patient_key|integer|FOREIGN KEY → curated.dim_patient(patient_key)|No|—|Surrogate patient dimension key|
+|date_key|integer|FOREIGN KEY → curated.dim_date(date_key)|No|—|Date dimension key for the event date|
+|clinic_key|integer|FOREIGN KEY → curated.dim_clinic(clinic_key)|No|—|Surrogate clinic dimension key|
+|encounter_type|text|—|Yes|—|STANDARD, CARE_PLAN or MEDICATION_REVIEW|
+|diagnosis_code|text|—|Yes|—|Recorded diagnosis code|
+|medication_review_flag|boolean|—|Yes|—|Whether the event is a medication review|
+|care_plan_flag|boolean|—|Yes|—|Whether the event is a care-plan event|
 
 ## curated.fact_lab_result
 
 **Owner:** E. **Grain:** One VALID result linked to a canonical patient; target 32.
 
+**Definition status:** SQL-defined in 07 833d05d; not rerun in this B review
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|lab_result_key|integer|PK|TBD|—|Surrogate laboratory fact key|
-|message_id|text|UQ|TBD|—|Transport/message identifier; distinct from observation_id|
-|observation_id|text|—|TBD|—|FHIR clinical observation identifier used for duplicate detection|
-|patient_key|integer|FK curated.dim_patient(patient_key)|TBD|—|Surrogate patient dimension key|
-|collected_date_key|integer|FK curated.dim_date(date_key)|TBD|—|Role-playing date key for collection|
-|reported_date_key|integer|FK curated.dim_date(date_key)|TBD|—|Role-playing date key for reporting|
-|lab_key|integer|FK curated.dim_lab(lab_key)|TBD|—|Surrogate laboratory dimension key|
-|test_key|integer|FK curated.dim_test(test_key)|TBD|—|Conformed test dimension key|
-|hba1c_mmol_mol|numeric(6,1)|—|TBD|—|Standardised HbA1c rounded to one decimal|
-|result_returned_flag|boolean|—|TBD|—|Whether delivery evidence exists for this result|
+|lab_result_key|integer|PRIMARY KEY|No|GENERATED BY DEFAULT AS IDENTITY|Surrogate laboratory fact key|
+|message_id|text|UNIQUE|No|—|Transport/message identifier; distinct from observation_id|
+|observation_id|text|—|No|—|FHIR clinical observation identifier used for duplicate detection|
+|patient_key|integer|FOREIGN KEY → curated.dim_patient(patient_key)|No|—|Surrogate patient dimension key|
+|collected_date_key|integer|FOREIGN KEY → curated.dim_date(date_key)|No|—|Role-playing date key for collection|
+|reported_date_key|integer|FOREIGN KEY → curated.dim_date(date_key)|No|—|Role-playing date key for reporting|
+|lab_key|integer|FOREIGN KEY → curated.dim_lab(lab_key)|No|—|Surrogate laboratory dimension key|
+|test_key|integer|FOREIGN KEY → curated.dim_test(test_key)|No|—|Conformed test dimension key|
+|hba1c_mmol_mol|numeric(6,1)|—|No|—|Standardised HbA1c rounded to one decimal|
+|result_returned_flag|boolean|—|No|—|Whether delivery evidence exists for this result|
 
 ## reporting.rule_parameter
 
 **Owner:** B. **Grain:** One named business-rule parameter.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -632,69 +714,79 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** E. **Grain:** One golden patient with a care gap or a pending high-result review; expected 8 rows.
 
+**Definition status:** Data contract
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|patient_id|text|View: no physical PK/FK|TBD|—|Canonical GL patient identifier anchored in GP masters|
-|display_name|text|View: no physical PK/FK|TBD|—|Canonical patient display name|
-|home_clinic|text|View: no physical PK/FK|TBD|—|Display name of the canonical home clinic|
-|last_test_date|date|View: no physical PK/FK|TBD|—|Latest VALID test collected on or before as_of_date; no six-month lower bound. NULL when no valid test exists.|
-|last_hba1c_mmol_mol|numeric|View: no physical PK/FK|TBD|—|HbA1c for the latest qualifying test|
-|first_review_date|date|View: no physical PK/FK|TBD|—|First qualifying review following a high result|
-|care_gap_status|text|View: no physical PK/FK|TBD|—|NO_TEST_ON_RECORD, OVERDUE_TEST, HIGH_NO_REVIEW or HIGH_REVIEW_PENDING. Pending review is shown but is not yet a care gap.|
-|as_of_date|date|View: no physical PK/FK|TBD|—|Fixed parameter date defining the analysis snapshot|
+|patient_id|text|—|TBD|—|Canonical GL patient identifier anchored in GP masters|
+|display_name|text|—|TBD|—|Canonical patient display name|
+|home_clinic|text|—|TBD|—|Display name of the canonical home clinic|
+|last_test_date|date|—|TBD|—|Latest VALID test collected on or before as_of_date; no six-month lower bound. NULL when no valid test exists.|
+|last_hba1c_mmol_mol|numeric|—|TBD|—|HbA1c for the latest qualifying test|
+|first_review_date|date|—|TBD|—|First qualifying review following a high result|
+|care_gap_status|text|—|TBD|—|NO_TEST_ON_RECORD, OVERDUE_TEST, HIGH_NO_REVIEW or HIGH_REVIEW_PENDING. Pending review is shown but is not yet a care gap.|
+|as_of_date|date|—|TBD|—|Fixed parameter date defining the analysis snapshot|
 
 ## reporting.vw_uc2_pdc
 
 **Owner:** D. **Grain:** One eligible golden patient and drug class; expected 11 rows.
 
+**Definition status:** Data contract
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|patient_id|text|View: no physical PK/FK|TBD|—|Canonical GL patient identifier anchored in GP masters|
-|display_name|text|View: no physical PK/FK|TBD|—|Canonical patient display name|
-|drug_class|text|View: no physical PK/FK|TBD|—|Medication class used for adherence grouping|
-|fills_counted|integer|View: no physical PK/FK|TBD|—|Eligible fills in the defined eligibility interval|
-|covered_days|integer|View: no physical PK/FK|TBD|—|Distinct covered days clipped to the PDC window|
-|window_days|integer|View: no physical PK/FK|TBD|—|Denominator days in the adherence window|
-|pdc|numeric|View: no physical PK/FK|TBD|—|Covered days / window days, rounded as contracted|
-|adherence_status|text|View: no physical PK/FK|TBD|—|NON_ADHERENT when PDC < 0.8; otherwise ADHERENT. Fewer than two eligible fills are not listed.|
-|window_start|date|View: no physical PK/FK|TBD|—|First included day of the PDC window|
-|window_end|date|View: no physical PK/FK|TBD|—|Last included day, excluding as_of_date|
-|as_of_date|date|View: no physical PK/FK|TBD|—|Fixed parameter date defining the analysis snapshot|
+|patient_id|text|—|TBD|—|Canonical GL patient identifier anchored in GP masters|
+|display_name|text|—|TBD|—|Canonical patient display name|
+|drug_class|text|—|TBD|—|Medication class used for adherence grouping|
+|fills_counted|integer|—|TBD|—|Eligible fills in the defined eligibility interval|
+|covered_days|integer|—|TBD|—|Distinct covered days clipped to the PDC window|
+|window_days|integer|—|TBD|—|Denominator days in the adherence window|
+|pdc|numeric|—|TBD|—|Covered days / window days, rounded as contracted|
+|adherence_status|text|—|TBD|—|NON_ADHERENT when PDC < 0.8; otherwise ADHERENT. Fewer than two eligible fills are not listed.|
+|window_start|date|—|TBD|—|First included day of the PDC window|
+|window_end|date|—|TBD|—|Last included day, excluding as_of_date|
+|as_of_date|date|—|TBD|—|Fixed parameter date defining the analysis snapshot|
 
 ## reporting.vw_uc3_hba1c_trend
 
 **Owner:** E. **Grain:** One golden patient with at least one VALID result in the 12-month trend window; expected 16 rows.
 
+**Definition status:** Data contract
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|patient_id|text|View: no physical PK/FK|TBD|—|Canonical GL patient identifier anchored in GP masters|
-|display_name|text|View: no physical PK/FK|TBD|—|Canonical patient display name|
-|n_results|integer|View: no physical PK/FK|TBD|—|Valid results in the trend window|
-|first_test_date|date|View: no physical PK/FK|TBD|—|Earliest selected trend test date|
-|first_hba1c|numeric|View: no physical PK/FK|TBD|—|HbA1c of the first selected trend result|
-|last_test_date|date|View: no physical PK/FK|TBD|—|Latest VALID collection date after as_of_date minus 12 months and on or before as_of_date.|
-|last_hba1c|numeric|View: no physical PK/FK|TBD|—|HbA1c of the last selected trend result|
-|change_mmol_mol|numeric|View: no physical PK/FK|TBD|—|Last minus first HbA1c in mmol/mol. NULL when n_results < 2.|
-|trend_status|text|View: no physical PK/FK|TBD|—|RISING, FALLING, STABLE or INSUFFICIENT_HISTORY. Thresholds are +5 and -5 mmol/mol.|
-|best_pdc|numeric|View: no physical PK/FK|TBD|—|Highest eligible class PDC for the patient|
-|rising_despite_adherence|boolean|View: no physical PK/FK|TBD|—|True only for RISING with best_pdc >= 0.8. False when PDC is unavailable.|
-|as_of_date|date|View: no physical PK/FK|TBD|—|Fixed parameter date defining the analysis snapshot|
+|patient_id|text|—|TBD|—|Canonical GL patient identifier anchored in GP masters|
+|display_name|text|—|TBD|—|Canonical patient display name|
+|n_results|integer|—|TBD|—|Valid results in the trend window|
+|first_test_date|date|—|TBD|—|Earliest selected trend test date|
+|first_hba1c|numeric|—|TBD|—|HbA1c of the first selected trend result|
+|last_test_date|date|—|TBD|—|Latest VALID collection date after as_of_date minus 12 months and on or before as_of_date.|
+|last_hba1c|numeric|—|TBD|—|HbA1c of the last selected trend result|
+|change_mmol_mol|numeric|—|TBD|—|Last minus first HbA1c in mmol/mol. NULL when n_results < 2.|
+|trend_status|text|—|TBD|—|RISING, FALLING, STABLE or INSUFFICIENT_HISTORY. Thresholds are +5 and -5 mmol/mol.|
+|best_pdc|numeric|—|TBD|—|Highest eligible class PDC for the patient|
+|rising_despite_adherence|boolean|—|TBD|—|True only for RISING with best_pdc >= 0.8. False when PDC is unavailable.|
+|as_of_date|date|—|TBD|—|Fixed parameter date defining the analysis snapshot|
 
 ## reporting.vw_uc4_care_path_breaks
 
 **Owner:** D. **Grain:** One unreturned VALID result, or one patient/drug-class/pair-of-pharmacies overlap; expected 2 rows.
 
+**Definition status:** Data contract
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
-|patient_id|text|View: no physical PK/FK|TBD|—|Canonical GL patient identifier anchored in GP masters|
-|display_name|text|View: no physical PK/FK|TBD|—|Canonical patient display name|
-|break_type|text|View: no physical PK/FK|TBD|—|RESULT_NOT_RETURNED or MULTI_PHARMACY_OVERLAP.|
-|detail|text|View: no physical PK/FK|TBD|—|Readable explanation of an issue or break|
-|event_date|date|View: no physical PK/FK|TBD|—|Date attached to the care-path break|
+|patient_id|text|—|TBD|—|Canonical GL patient identifier anchored in GP masters|
+|display_name|text|—|TBD|—|Canonical patient display name|
+|break_type|text|—|TBD|—|RESULT_NOT_RETURNED or MULTI_PHARMACY_OVERLAP.|
+|detail|text|—|TBD|—|Readable explanation of an issue or break|
+|event_date|date|—|TBD|—|Date attached to the care-path break|
 
 ## audit.identity_truth
 
 **Owner:** C. **Grain:** One synthetic source identity answer-key row; 48 rows. Used only to evaluate matching.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -705,6 +797,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 ## audit.pipeline_run
 
 **Owner:** B / C. **Grain:** One explicitly logged pipeline execution.
+
+**Definition status:** Implemented in 00–06 at 3f7e03e
 
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
@@ -722,6 +816,8 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 **Owner:** F. **Grain:** One acceptance-test result; history/key policy awaits F.
 
+**Definition status:** Data contract
+
 |Column|Type|PK/FK/uniqueness|Nullable|Default|Meaning|
 |---|---|---|---|---|---|
 |test_id|text|—|TBD|—|Acceptance-test identifier|
@@ -732,9 +828,12 @@ Owner denotes a work package, not a database login. B maintains this document. C
 
 ## Implementation notes
 
-- Current 05 includes patient_master.postcode, so the dictionary includes it. Coordinate any removal with D.
-- The patient_source_link to patient_master reference is shown dashed until D adds the FK. patient_id is nullable and remains NULL for REVIEW and UNMATCHED.
-- business_rules_v1.2 requires match_rule to be NULL for REVIEW and UNMATCHED. The updated 05 sets both unresolved cases to NULL; the isolated test returned zero violations.
-- UC1 uses the latest VALID test on or before as_of_date without a six-month lower bound. UC3 reads UC2 for best_pdc. With fewer than two results, change_mmol_mol is NULL; missing PDC makes rising_despite_adherence false.
-- UC4 reads fact_lab_result.result_returned_flag, not source/RAW delivery tables.
-- Types and nullability for unimplemented objects require owner confirmation and integration testing. The full pipeline is not yet verified.
+- 05 dcc53c6 retains patient_master.postcode. Its patient_source_link.patient_id is nullable and has no declared FK. B has retained both facts and will update after D publishes the agreed change.
+- CLEANSED encounter and dispense have their own primary keys and no foreign keys back to source tables.
+- cleansed.dq_issue uses rule (not rule_code); issue_id is bigint with a sequence default. Its table_name, record_id and rule are NOT NULL.
+- audit.identity_truth holds 48 evaluation rows keyed by (source_system, source_patient_id); it is not used to assign patient identities.
+- audit.pipeline_run statuses are RUNNING, SUCCESS and FAILED. dob means Date of birth.
+- UC1 last_test_date is the latest VALID result on or before as_of_date, without a six-month lower limit.
+- UC3 reads UC2 for best PDC. Fewer than two results gives change_mmol_mol = NULL; unavailable PDC gives rising_despite_adherence = false.
+- UC4 uses fact_lab_result.result_returned_flag, not a direct RAW delivery join. 07 defines this flag as returned_at IS NOT NULL; the grace-period rule belongs in UC4.
+- The full 00–10 pipeline and final views still require integration testing.
