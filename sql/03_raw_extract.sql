@@ -1,10 +1,17 @@
 -- File:          03_raw_extract.sql
 -- Package/owner: C - Quang Tien Le
 -- Purpose:       Copy all 11 sources unchanged to RAW with run-level lineage.
--- Reads:         The 11 src_gp/src_lab/src_pharm tables listed below.
--- Writes:        Only the 11 owned raw tables and one audit.pipeline_run row.
+-- Reads:         src_gp.clinic, src_gp.gp_patient, src_gp.encounter,
+--                src_lab.laboratory, src_lab.lab_patient, src_lab.observation_message,
+--                src_lab.result_delivery, src_pharm.pharmacy, src_pharm.medication,
+--                src_pharm.pharmacy_patient, src_pharm.dispense.
+-- Writes:        raw.gp_clinic, raw.gp_patient, raw.gp_encounter, raw.lab_laboratory,
+--                raw.lab_patient, raw.lab_observation, raw.lab_delivery, raw.pharm_pharmacy,
+--                raw.pharm_medication, raw.pharm_patient, raw.pharm_dispense;
+--                one new row in audit.pipeline_run.
 -- Design link:   Build Plan v2 sections 5.2/5.6; Task Cards v3 C-3.
--- Run after:     00 -> 01 -> 02 -> 02b; B must finish the 36 messages/34 deliveries.
+-- Run after:     00_setup.sql, 01_src_tables.sql, 02_src_data.sql, 02b_src_lab_messages.sql
+--                (after any re-run of 01 or 02, run 02b again before this file).
 -- Re-runnable:   Yes; full RAW rebuild/reload, one new run log per successful run.
 -- Assistance:    Prepared with AI assistance; review and declare in the log.
 --
