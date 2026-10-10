@@ -11,11 +11,12 @@
 --                Remediation Plan v3, task card D-2.
 -- Run after:      04_cleansed_standardise.sql.
 -- Re-runnable:    Yes; removes its own objects first (DROP TABLE IF EXISTS).
+-- Keys:           patient_source_link.patient_id -> patient_master.patient_id (FK).
+--                 patient_master holds identity fields only (no postcode).
 --
 -- IMPORTANT: this script never reads audit.identity_truth. That table is
--- the evaluation answer key and is only used afterwards, externally, to
--- score the result (see the separate evaluation block at the very end,
--- clearly marked as not part of the matching logic).
+-- the evaluation answer key; precision and recall are scored separately
+-- (identity_rules_v1.1.md, section 6), never inside this script.
 
 BEGIN;
 
@@ -36,8 +37,7 @@ CREATE TABLE cleansed.patient_master (
     family_name   text,
     dob            date,
     sex             char(1),
-    medicare10      text,              -- NULL if no GP record in the group had one
-    postcode         text
+    medicare10      text               -- NULL if no GP record in the group had one
 );
 
 COMMENT ON TABLE cleansed.patient_master
@@ -46,7 +46,7 @@ IS 'Golden patient index, built only from GP records (GP = GlucoLink enrolment).
 CREATE TABLE cleansed.patient_source_link (
     source_system     text NOT NULL,
     source_patient_id text NOT NULL,
-    patient_id         text,              -- NULL unless LINKED
+    patient_id         text REFERENCES cleansed.patient_master (patient_id),  -- NULL unless LINKED
     match_status        text NOT NULL,     -- LINKED / REVIEW / UNMATCHED
     match_rule           text,              -- GP / R1 / R2 / NULL (REVIEW, UNMATCHED)
     candidate_count       int NOT NULL,      -- how many masters satisfied the rule tried
@@ -90,15 +90,14 @@ SELECT
     pr.family_name,
     pr.dob,
     pr.sex,
-    pr.medicare10,
-    pr.postcode
+    pr.medicare10
 FROM group_reps gr
 JOIN cleansed.patient_record pr
   ON pr.source_system = 'GP'
  AND pr.source_patient_id = gr.rep_source_patient_id;
 
-INSERT INTO cleansed.patient_master (patient_id, given_name, family_name, dob, sex, medicare10, postcode)
-SELECT patient_id, given_name, family_name, dob, sex, medicare10, postcode
+INSERT INTO cleansed.patient_master (patient_id, given_name, family_name, dob, sex, medicare10)
+SELECT patient_id, given_name, family_name, dob, sex, medicare10
 FROM master_build;
 
 -- ---------------------------------------------------------------------
@@ -229,19 +228,3 @@ SELECT * FROM cleansed.patient_source_link WHERE source_patient_id IN ('PH-1002'
 
 -- Expect GP-0008 and GP-0009 to share the same patient_id (GL-0008).
 SELECT * FROM cleansed.patient_source_link WHERE source_patient_id IN ('GP-0008', 'GP-0009');
-
--- =============================================================
--- EVALUATION ONLY - run after matching is finished and checked.
--- This is NOT part of the matching logic above; audit.identity_truth
--- is never read by the matching script itself, only here, afterwards,
--- to score the result (identity_rules_v1.1.md, section 6).
--- =============================================================
--- SELECT
---     round(
---         SUM(CASE WHEN t.is_correct THEN 1 ELSE 0 END)::numeric
---         / NULLIF(SUM(CASE WHEN l.match_status = 'LINKED' THEN 1 ELSE 0 END), 0), 3
---     ) AS precision_of_linked
--- FROM cleansed.patient_source_link l
--- JOIN audit.identity_truth t
---   ON t.source_system = l.source_system AND t.source_patient_id = l.source_patient_id
--- WHERE l.match_status = 'LINKED';
