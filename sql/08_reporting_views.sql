@@ -1,33 +1,101 @@
 -- File: sql/08_reporting_views.sql
--- Owner: Shuo Ding (E). Package E contribution: UC1 and UC3 ONLY.
--- Rules: docs/business_rules_v1.2.docx; task card E-4.
--- Reads: curated dimensions/facts, reporting.rule_parameter,
---        reporting.vw_uc2_pdc (owned by Yutong, D).
--- Writes: reporting.vw_uc1_care_gaps, reporting.vw_uc3_hba1c_trend.
--- Rebuild order: 06 -> 07 -> 08_vw_uc2_pdc.sql -> this file.
--- When consolidating all views into this file, insert D's UC2 block before UC3
--- and retain D's UC4 block. This contribution does not implement or replace UC2/UC4.
+-- Owner: E (Shuo Ding) for UC1 and UC3; D (Yutong Geng) for UC2 and UC4.
+-- Rules: docs/business_rules_v1.2.docx; task cards D-4 and E-4.
+-- Reads: curated dimensions/facts, reporting.rule_parameter.
+-- Writes: reporting.vw_uc2_pdc, vw_uc1_care_gaps, vw_uc3_hba1c_trend,
+--         vw_uc4_care_path_breaks.
+-- Rebuild order: 06 -> 07 -> this file (UC2 is created before UC3 inside it;
+--                the separate 08_vw_uc2_pdc.sql is no longer needed).
+-- 07 uses DROP ... CASCADE, so always re-run this whole file after 07.
 -- Uses CREATE OR REPLACE VIEW; no source data is modified.
--- 10 Oct coordination: upload to GitHub; leader performs the shared DB rebuild.
 
 BEGIN;
 
 DO $$
 DECLARE missing_parameters text;
 BEGIN
-    IF to_regclass('reporting.vw_uc2_pdc') IS NULL THEN
-        RAISE EXCEPTION 'UC2 is required: run 08_vw_uc2_pdc.sql before 08_reporting_views.sql.';
-    END IF;
     SELECT string_agg(r.name, ', ' ORDER BY r.name) INTO missing_parameters
     FROM (VALUES ('as_of_date'), ('test_overdue_months'), ('hba1c_high_mmol'),
                  ('review_window_days'), ('trend_window_months'),
-                 ('trend_min_change_mmol'), ('pdc_threshold')) r(name)
+                 ('trend_min_change_mmol'), ('pdc_threshold'),
+                 ('pdc_window_days'), ('return_grace_days')) r(name)
     LEFT JOIN reporting.rule_parameter p ON p.param_name = r.name
     WHERE nullif(btrim(p.param_value), '') IS NULL;
     IF missing_parameters IS NOT NULL THEN
         RAISE EXCEPTION 'Missing reporting parameters: %', missing_parameters;
     END IF;
 END $$;
+
+-- ======================= vw_uc2_pdc =======================
+-- window_end = as_of - 1; window_start = as_of - pdc_window_days;
+-- eligible = >= 2 fills of the class dispensed from window_start - 90 days
+-- to window_end; a fill covers dispensed_date .. +days_supply-1;
+-- pdc = distinct covered days in window / pdc_window_days (3 dp);
+-- pdc < pdc_threshold -> NON_ADHERENT. Only LINKED patients exist in the facts.
+-- The 90-day look-back is the number in the business rules, not a parameter row.
+CREATE OR REPLACE VIEW reporting.vw_uc2_pdc AS
+WITH params AS (
+    SELECT
+        (SELECT param_value::date    FROM reporting.rule_parameter WHERE param_name = 'as_of_date')      AS as_of_date,
+        (SELECT param_value::integer FROM reporting.rule_parameter WHERE param_name = 'pdc_window_days') AS window_days,
+        (SELECT param_value::numeric FROM reporting.rule_parameter WHERE param_name = 'pdc_threshold')   AS pdc_threshold
+),
+win AS (
+    SELECT as_of_date, window_days, pdc_threshold,
+           as_of_date - window_days      AS window_start,
+           as_of_date - 1                AS window_end,
+           as_of_date - window_days - 90 AS eligibility_start
+    FROM params
+),
+fills AS (
+    SELECT f.patient_key, m.drug_class, f.dispense_id,
+           d.full_date AS dispensed_date, f.days_supply
+    FROM curated.fact_dispense f
+    JOIN curated.dim_date d       ON d.date_key = f.date_key
+    JOIN curated.dim_medication m ON m.medication_key = f.medication_key
+    WHERE m.drug_class IN ('biguanide', 'sulfonylurea', 'DPP-4 inhibitor')
+),
+fill_counts AS (
+    SELECT f.patient_key, f.drug_class, count(*) AS fills_counted
+    FROM fills f CROSS JOIN win w
+    WHERE f.dispensed_date BETWEEN w.eligibility_start AND w.window_end
+    GROUP BY f.patient_key, f.drug_class
+),
+covered AS (
+    -- DISTINCT so overlapping fills count a calendar day once
+    SELECT DISTINCT f.patient_key, f.drug_class, gs.day::date AS covered_day
+    FROM fills f CROSS JOIN win w
+    CROSS JOIN LATERAL generate_series(
+        f.dispensed_date, f.dispensed_date + f.days_supply - 1, interval '1 day'
+    ) AS gs(day)
+    WHERE gs.day::date BETWEEN w.window_start AND w.window_end
+),
+covered_days AS (
+    SELECT patient_key, drug_class, count(*) AS covered_days
+    FROM covered GROUP BY patient_key, drug_class
+)
+SELECT
+    p.patient_id,
+    p.display_name,
+    fc.drug_class,
+    fc.fills_counted,
+    COALESCE(cd.covered_days, 0)                                    AS covered_days,
+    w.window_days,
+    round(COALESCE(cd.covered_days, 0)::numeric / w.window_days, 3) AS pdc,
+    CASE WHEN round(COALESCE(cd.covered_days, 0)::numeric / w.window_days, 3) < w.pdc_threshold
+         THEN 'NON_ADHERENT' ELSE 'ADHERENT' END                    AS adherence_status,
+    w.window_start,
+    w.window_end,
+    w.as_of_date
+FROM fill_counts fc
+CROSS JOIN win w
+JOIN curated.dim_patient p ON p.patient_key = fc.patient_key
+LEFT JOIN covered_days cd
+       ON cd.patient_key = fc.patient_key AND cd.drug_class = fc.drug_class
+WHERE fc.fills_counted >= 2;
+
+COMMENT ON VIEW reporting.vw_uc2_pdc
+IS 'UC2: PDC medication adherence per golden patient and drug class. Parameters from reporting.rule_parameter.';
 
 -- UC1: latest eligible result across all history, not just the overdue window.
 CREATE OR REPLACE VIEW reporting.vw_uc1_care_gaps AS
@@ -135,5 +203,72 @@ LEFT JOIN best_adherence b ON b.patient_id = p.patient_id;
 
 COMMENT ON VIEW reporting.vw_uc3_hba1c_trend IS
 'UC3: parameterised HbA1c trend over (as_of_date - trend_window_months, as_of_date]; best PDC across UC2 drug classes; no PDC gives a false adherence flag. business_rules_v1.2.';
+
+-- ================= vw_uc4_care_path_breaks =================
+-- (a) RESULT_NOT_RETURNED: VALID result (only VALID rows are in the fact) with
+--     result_returned_flag = false, reported at least return_grace_days before
+--     as_of_date.
+-- (b) MULTI_PHARMACY_OVERLAP: same patient and drug class supplied by two
+--     pharmacies in overlapping supply periods; ONE row per patient, drug
+--     class and pharmacy pair (pharmacy_a < pharmacy_b).
+CREATE OR REPLACE VIEW reporting.vw_uc4_care_path_breaks AS
+WITH params AS (
+    SELECT
+        (SELECT param_value::date    FROM reporting.rule_parameter WHERE param_name = 'as_of_date')         AS as_of_date,
+        (SELECT param_value::integer FROM reporting.rule_parameter WHERE param_name = 'return_grace_days')  AS grace_days
+),
+not_returned AS (
+    SELECT p.patient_id,
+           p.display_name,
+           'RESULT_NOT_RETURNED'::text AS break_type,
+           ('Result ' || f.observation_id || ' reported ' || rd.full_date
+            || ' has no delivery record to a clinic')::text AS detail,
+           rd.full_date AS event_date
+    FROM curated.fact_lab_result f
+    JOIN curated.dim_patient p ON p.patient_key = f.patient_key
+    JOIN curated.dim_date rd   ON rd.date_key = f.reported_date_key
+    CROSS JOIN params x
+    WHERE f.result_returned_flag = false
+      AND rd.full_date <= x.as_of_date - x.grace_days
+),
+fills AS (
+    SELECT f.patient_key, m.drug_class, h.pharmacy_id,
+           d.full_date AS start_date,
+           d.full_date + f.days_supply - 1 AS end_date
+    FROM curated.fact_dispense f
+    JOIN curated.dim_date d       ON d.date_key = f.date_key
+    JOIN curated.dim_medication m ON m.medication_key = f.medication_key
+    JOIN curated.dim_pharmacy h   ON h.pharmacy_key = f.pharmacy_key
+),
+overlap_pairs AS (
+    SELECT a.patient_key, a.drug_class,
+           a.pharmacy_id AS pharmacy_a, b.pharmacy_id AS pharmacy_b,
+           min(greatest(a.start_date, b.start_date)) AS first_overlap_date,
+           count(*) AS overlapping_fill_pairs
+    FROM fills a
+    JOIN fills b
+      ON b.patient_key = a.patient_key
+     AND b.drug_class  = a.drug_class
+     AND a.pharmacy_id < b.pharmacy_id
+     AND a.start_date <= b.end_date
+     AND b.start_date <= a.end_date
+    GROUP BY a.patient_key, a.drug_class, a.pharmacy_id, b.pharmacy_id
+),
+multi_pharmacy AS (
+    SELECT p.patient_id,
+           p.display_name,
+           'MULTI_PHARMACY_OVERLAP'::text AS break_type,
+           (o.drug_class || ' supplied by pharmacies ' || o.pharmacy_a || ' and '
+            || o.pharmacy_b || ' with overlapping supply from ' || o.first_overlap_date)::text AS detail,
+           o.first_overlap_date AS event_date
+    FROM overlap_pairs o
+    JOIN curated.dim_patient p ON p.patient_key = o.patient_key
+)
+SELECT patient_id, display_name, break_type, detail, event_date FROM not_returned
+UNION ALL
+SELECT patient_id, display_name, break_type, detail, event_date FROM multi_pharmacy;
+
+COMMENT ON VIEW reporting.vw_uc4_care_path_breaks
+IS 'UC4: care-path breaks - unreturned VALID results and multi-pharmacy overlaps. Parameters from reporting.rule_parameter.';
 
 COMMIT;
