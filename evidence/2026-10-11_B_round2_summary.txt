@@ -1,0 +1,22 @@
+   database_name   | execution_role | tests | passed | failed | raw_runs |          checked_at           
+-------------------+----------------+-------+--------+--------+----------+-------------------------------
+ glucolink_a2_test | a2_team_editor |    46 |     46 |      0 |        2 | 2026-10-11 11:45:46.188978+00
+(1 row)
+
+         object          | rows 
+-------------------------+------
+ fact_encounter          |   28
+ fact_lab_result         |   32
+ fact_dispense           |   65
+ vw_uc1_care_gaps        |    8
+ vw_uc2_pdc              |   11
+ vw_uc3_hba1c_trend      |   16
+ vw_uc4_care_path_breaks |    2
+(7 rows)
+
+ run_id | status  | rows_read | rows_loaded | rows_rejected |          started_at           |          finished_at          
+--------+---------+-----------+-------------+---------------+-------------------------------+-------------------------------
+      1 | SUCCESS |       225 |         225 |             0 | 2026-10-11 11:45:38.514681+00 | 2026-10-11 11:45:38.66584+00
+      2 | SUCCESS |       225 |         225 |             0 | 2026-10-11 11:45:43.488585+00 | 2026-10-11 11:45:43.651029+00
+(2 rows)
+
