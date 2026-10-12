@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mxfile host="app.diagrams.net" type="device" version="24.7.17">
-  <diagram id="glucolink-star-v1" name="Curated star schema v1">
+  <diagram id="glucolink-star-v1" name="Curated star schema - implemented">
     <mxGraphModel dx="3200" dy="2320" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3200" pageHeight="2320" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -8,7 +8,7 @@
         <mxCell id="title" value="GlucoLink  |  Curated star schema" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=48;fontColor=#183044;fontStyle=1;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="80" y="28" width="1800" height="65" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" value="Design v1  /  E · Shuo Ding  /  Build Plan v2, section 5.4" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=27;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="Implemented schema  /  E · Shuo Ding  /  Verified 11 Oct 2026" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=27;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="80" y="96" width="1800" height="38" as="geometry" />
         </mxCell>
         <mxCell id="legend" value="Teal: dimension     Blue: fact     PK: primary key     FK: foreign key&#10;UQ: unique     Crow’s foot: many     Bar: one" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="1">
@@ -422,7 +422,7 @@
         <mxCell id="encounter_grain" value="One GP visit of a LINKED patient." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=23;fontColor=#183044;fontStyle=1;spacing=0;" vertex="1" parent="encounter">
           <mxGeometry x="22" y="420" width="576" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="encounter_count" value="Target: 28 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="encounter">
+        <mxCell id="encounter_count" value="Validated: 28 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="encounter">
           <mxGeometry x="22" y="459" width="576" height="36" as="geometry" />
         </mxCell>
         <mxCell id="result" value="" style="group;" vertex="1" parent="1">
@@ -542,10 +542,10 @@
         <mxCell id="result_type9" value="boolean" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=right;verticalAlign=middle;fontFamily=Arial;fontSize=20;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="result">
           <mxGeometry x="478" y="402.0" width="124" height="36" as="geometry" />
         </mxCell>
-        <mxCell id="result_grain" value="One VALID HbA1c result of a LINKED patient." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=23;fontColor=#183044;fontStyle=1;spacing=0;" vertex="1" parent="result">
+        <mxCell id="result_grain" value="One VALID lab message for a LINKED patient." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=23;fontColor=#183044;fontStyle=1;spacing=0;" vertex="1" parent="result">
           <mxGeometry x="22" y="456" width="576" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="result_count" value="Target: 32 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="result">
+        <mxCell id="result_count" value="Validated: 32 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="result">
           <mxGeometry x="22" y="495" width="576" height="36" as="geometry" />
         </mxCell>
         <mxCell id="dispense" value="" style="group;" vertex="1" parent="1">
@@ -647,7 +647,7 @@
         <mxCell id="dispense_grain" value="One dispensing event of a LINKED patient." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=23;fontColor=#183044;fontStyle=1;spacing=0;" vertex="1" parent="dispense">
           <mxGeometry x="22" y="384" width="576" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="dispense_count" value="Target: 65 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="dispense">
+        <mxCell id="dispense_count" value="Validated: 65 rows" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="dispense">
           <mxGeometry x="22" y="423" width="576" height="36" as="geometry" />
         </mxCell>
         <mxCell id="lab" value="" style="group;" vertex="1" parent="1">
@@ -980,16 +980,16 @@
         <mxCell id="a3" value="Each fact row represents one event." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=27;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="80" y="2056" width="940" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="a4" value="dim_patient target: 17 golden patients" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
+        <mxCell id="a4" value="dim_patient: 17 golden patients" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="80" y="2115" width="940" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="decisions" value="DESIGN DECISIONS TO CONFIRM" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=26;fontColor=#2B55A1;fontStyle=1;spacing=0;" vertex="1" parent="1">
+        <mxCell id="decisions" value="IMPLEMENTED DESIGN DECISIONS" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=26;fontColor=#2B55A1;fontStyle=1;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="2230" y="1915" width="940" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="d1" value="Home clinic selection for multiple GP registrations." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
+        <mxCell id="d1" value="Home clinic: lowest linked gp_patient_id." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="2230" y="1970" width="940" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="d2" value="Fact keys, types and date-role field names are proposed." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
+        <mxCell id="d2" value="Keys, types and date roles match scripts 06 and 07." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="2230" y="2013" width="940" height="44" as="geometry" />
         </mxCell>
         <mxCell id="d3" value="Source IDs support traceability; they are not extra FKs." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
@@ -998,7 +998,7 @@
         <mxCell id="d4" value="dim_date: 730 days  |  dim_test: 2 conventions" style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#183044;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="2230" y="2115" width="940" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="footer" value="7 physical dimensions · 3 event facts · Shared dimensions are drawn once. Counts are acceptance targets." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="1">
+        <mxCell id="footer" value="7 physical dimensions · 3 event facts · Shared dimensions are drawn once. Counts verified in the shared database rebuild." style="text;html=0;whiteSpace=wrap;overflow=hidden;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#536779;fontStyle=0;spacing=0;" vertex="1" parent="1">
           <mxGeometry x="80" y="2260" width="2940" height="44" as="geometry" />
         </mxCell>
       </root>

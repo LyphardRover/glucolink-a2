@@ -1,7 +1,12 @@
 -- File: sql/08_reporting_views.sql
 -- Owner: E (Shuo Ding) for UC1 and UC3; D (Yutong Geng) for UC2 and UC4.
 -- Rules: docs/business_rules_v1.2.docx; task cards D-4 and E-4.
--- Reads: curated dimensions/facts, reporting.rule_parameter.
+-- Purpose: Create the UC1 care-gap, UC2 medication-adherence, UC3 HbA1c-trend,
+--          and UC4 care-path-break reporting views.
+-- Reads: curated dimensions/facts, reporting.rule_parameter,
+--        reporting.vw_uc2_pdc (UC3 reads UC2, created earlier in this file).
+-- Run after: 07_curated_facts.sql
+-- Re-runnable: yes; re-run after every 07.
 -- Writes: reporting.vw_uc2_pdc, vw_uc1_care_gaps, vw_uc3_hba1c_trend,
 --         vw_uc4_care_path_breaks.
 -- Rebuild order: 06 -> 07 -> this file (UC2 is created before UC3 inside it;
