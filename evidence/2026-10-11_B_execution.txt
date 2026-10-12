@@ -1,0 +1,85 @@
+Prepared by Zhihao Zhang (Package B)
+Source commit: 9a499ce4c1564dfdc06e5a521d714d6728337332
+sql/00_setup.sql: OK
+sql/01_src_tables.sql: OK
+sql/02_src_data.sql: OK
+sql/02b_src_lab_messages.sql: OK
+sql/03_raw_extract.sql: OK
+sql/04_cleansed_standardise.sql: OK
+sql/05_identity_resolution.sql: OK
+sql/06_curated_dimensions.sql: OK
+sql/07_curated_facts.sql: OK
+sql/08_reporting_views.sql: OK
+sql/09_tests.sql: OK
+Old test database preserved as b_test_before_20261011_9a499ce4
+EMPTY TEST DATABASE CONFIRMED 2026-10-11T11:45:36Z
+ROUND 1 START 2026-10-11T11:45:36Z
+Running 00_setup.sql ... OK
+Running 01_src_tables.sql ... OK
+Running 02_src_data.sql ... OK
+Running 02b_src_lab_messages.sql ... OK
+Running 03_raw_extract.sql ... OK
+Running 04_cleansed_standardise.sql ... OK
+Running 05_identity_resolution.sql ... OK
+Running 06_curated_dimensions.sql ... OK
+Running 07_curated_facts.sql ... OK
+Running 08_reporting_views.sql ... OK
+Running 09_tests.sql ... OK
+   database_name   | execution_role | tests | passed | failed | raw_runs |          checked_at           
+-------------------+----------------+-------+--------+--------+----------+-------------------------------
+ glucolink_a2_test | a2_team_editor |    46 |     46 |      0 |        1 | 2026-10-11 11:45:41.258245+00
+(1 row)
+
+         object          | rows 
+-------------------------+------
+ fact_encounter          |   28
+ fact_lab_result         |   32
+ fact_dispense           |   65
+ vw_uc1_care_gaps        |    8
+ vw_uc2_pdc              |   11
+ vw_uc3_hba1c_trend      |   16
+ vw_uc4_care_path_breaks |    2
+(7 rows)
+
+ run_id | status  | rows_read | rows_loaded | rows_rejected |          started_at           |         finished_at          
+--------+---------+-----------+-------------+---------------+-------------------------------+------------------------------
+      1 | SUCCESS |       225 |         225 |             0 | 2026-10-11 11:45:38.514681+00 | 2026-10-11 11:45:38.66584+00
+(1 row)
+
+ROUND 1 PASS 2026-10-11T11:45:41Z
+ROUND 2 START 2026-10-11T11:45:41Z
+Running 00_setup.sql ... OK
+Running 01_src_tables.sql ... OK
+Running 02_src_data.sql ... OK
+Running 02b_src_lab_messages.sql ... OK
+Running 03_raw_extract.sql ... OK
+Running 04_cleansed_standardise.sql ... OK
+Running 05_identity_resolution.sql ... OK
+Running 06_curated_dimensions.sql ... OK
+Running 07_curated_facts.sql ... OK
+Running 08_reporting_views.sql ... OK
+Running 09_tests.sql ... OK
+   database_name   | execution_role | tests | passed | failed | raw_runs |          checked_at           
+-------------------+----------------+-------+--------+--------+----------+-------------------------------
+ glucolink_a2_test | a2_team_editor |    46 |     46 |      0 |        2 | 2026-10-11 11:45:46.188978+00
+(1 row)
+
+         object          | rows 
+-------------------------+------
+ fact_encounter          |   28
+ fact_lab_result         |   32
+ fact_dispense           |   65
+ vw_uc1_care_gaps        |    8
+ vw_uc2_pdc              |   11
+ vw_uc3_hba1c_trend      |   16
+ vw_uc4_care_path_breaks |    2
+(7 rows)
+
+ run_id | status  | rows_read | rows_loaded | rows_rejected |          started_at           |          finished_at          
+--------+---------+-----------+-------------+---------------+-------------------------------+-------------------------------
+      1 | SUCCESS |       225 |         225 |             0 | 2026-10-11 11:45:38.514681+00 | 2026-10-11 11:45:38.66584+00
+      2 | SUCCESS |       225 |         225 |             0 | 2026-10-11 11:45:43.488585+00 | 2026-10-11 11:45:43.651029+00
+(2 rows)
+
+ROUND 2 PASS 2026-10-11T11:45:46Z
+ALL TWO ROUNDS PASSED 2026-10-11T11:45:46Z
