@@ -8,7 +8,6 @@
 -- Design link:   Task Cards v3 E-3; Business rules v1.2; logical model v1.
 -- Run after:     Team run order 00 -> 01 -> 02 -> 02b -> 03 -> 04 -> 05 -> 06.
 -- Re-runnable:   Yes; full rebuild in one transaction, DROP ... CASCADE.
--- Assistance:    Prepared with AI assistance; reviewed and locally tested.
 -- Release:       9 October 2026; shared-DB acceptance is still required.
 --
 -- Wait for the coordinated 04 -> 05 -> 06 rerun to finish before running 07.
