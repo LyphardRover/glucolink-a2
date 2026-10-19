@@ -9,7 +9,6 @@
 -- Run after:     Team run order 00 -> 01 -> 02 -> 02b -> 03 -> 04 -> 05 -> 06.
 -- Re-runnable:   Yes; full rebuild in one transaction, DROP ... CASCADE.
 -- Release:       9 October 2026; shared-DB acceptance is still required.
---
 -- Wait for the coordinated 04 -> 05 -> 06 rerun to finish before running 07.
 -- Re-run 08 after this rebuild: CASCADE removes dependent reporting views.
 -- Run the WHOLE file in one session. On error, stop and run ROLLBACK.
