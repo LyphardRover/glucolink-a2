@@ -11,7 +11,6 @@
 --                05_identity_resolution.sql, following the team's 00-05 run order.
 -- Re-runnable:   Yes. Rebuild all seven dimensions in one transaction.
 -- Release:       E-2, 8 October 2026; final shared-DB acceptance still required.
---
 -- After re-running 06, re-run 07 and 08.
 -- CASCADE removes dependent views and foreign-key constraints; it does not
 -- refresh existing fact rows. Coordinate in Teams and rebuild downstream outputs.
