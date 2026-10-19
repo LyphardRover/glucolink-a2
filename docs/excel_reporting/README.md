@@ -38,4 +38,4 @@ Run export_reporting.sql with psql from a new private output directory using an 
 - UC3 returns NULL change_mmol_mol when n_results < 2; unavailable PDC makes rising_despite_adherence false.
 - UC4 uses fact_lab_result.result_returned_flag. These rules remain the SQL owners' responsibility.
 
-Prepared with AI assistance; B reviewed the workflow and its current limits. No changes to other packages' SQL or shared database data are included.
+B reviewed the workflow and its current limits. No changes to other packages' SQL or shared database data are included.

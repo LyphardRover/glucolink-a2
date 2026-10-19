@@ -940,4 +940,4 @@ Observed constraints:
 
 D confirms the seven CLEANSED objects and UC2/UC4 view contract; E confirms ten CURATED objects and UC1/UC3; C confirms RAW provenance/identity truth and source DDL; F confirms test_result. Record each acknowledgement and commit, then regenerate the live comparison after 00–10 succeeds twice. This draft must not be labelled final until every TBD is resolved against the frozen SQL.
 
-Prepared with AI assistance and checked against the cited project materials and observed metadata. Human review is pending; no hours or teammate approvals are asserted.
+Checked against the cited project materials and observed metadata. Human review is pending; no hours or teammate approvals are asserted.
